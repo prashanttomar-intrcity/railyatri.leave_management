@@ -13,10 +13,18 @@ export default function Navbar() {
   const dropdownRef = useRef();
   const navigate = useNavigate();
 
-  const user = {
-    name: "Prashant",
-    email: "prashant@example.com",
-  };
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+  });
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    setUser({
+      name: storedUser.name || "",
+      email: storedUser.email || "",
+    });
+  }, []);
 
   // ================= CLICK OUTSIDE =================
   useEffect(() => {
@@ -49,7 +57,11 @@ export default function Navbar() {
 
         {/* AVATAR */}
         <div style={styles.avatar} onClick={() => setOpen(!open)}>
-          {user.name.charAt(0)}
+          {user.name
+            ? user.name.charAt(0).toUpperCase()
+            : user.email
+              ? user.email.charAt(0).toUpperCase()
+              : "U"}
         </div>
 
         {/* ✅ NEW LOGOUT BUTTON */}
@@ -62,7 +74,13 @@ export default function Navbar() {
           <div style={styles.dropdown}>
             {/* USER */}
             <div style={styles.userBox}>
-              <div style={styles.avatarLarge}>{user.name.charAt(0)}</div>
+              <div style={styles.avatarLarge}>
+                {user.name
+                  ? user.name.charAt(0).toUpperCase()
+                  : user.email
+                    ? user.email.charAt(0).toUpperCase()
+                    : "U"}
+              </div>
               <div>
                 <div style={styles.name}>{user.name}</div>
                 <div style={styles.email}>{user.email}</div>

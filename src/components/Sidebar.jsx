@@ -87,19 +87,13 @@ export default function Sidebar() {
               active={isActive("/leave/calendar")}
               onClick={() => navigate("/leave/calendar")}
             />
-
-            <SubItem
-              label="Holiday Calendar"
-              active={isActive("/leave/holiday")}
-              onClick={() => navigate("/leave/holiday")}
-            />
           </div>
         </div>
       </div>
 
       {/* FOOTER */}
       <div style={styles.footer}>
-        <div style={styles.footerItem}>⚙ Settings</div>
+        <div style={styles.footerItem}></div>
       </div>
     </div>
   );

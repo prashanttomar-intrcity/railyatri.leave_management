@@ -1,29 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // =====================================================
-// PROFILE PAGE (ENTERPRISE CLEAN UI)
+// PROFILE PAGE (DYNAMIC REAL DATA)
 // =====================================================
 
 export default function Profile() {
   const [editMode, setEditMode] = useState(false);
 
   const [user, setUser] = useState({
-    name: "Prashant",
-    email: "prashant@example.com",
-    empId: "EMP001",
-    department: "IT",
-    phone: "9876543210",
-    location: "Delhi, India",
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
   });
 
   const [form, setForm] = useState(user);
 
+  // ================= LOAD USER =================
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    const extra = JSON.parse(localStorage.getItem("profile_extra")) || {};
+
+    const merged = {
+      name: storedUser.name || "",
+      email: storedUser.email || "",
+      phone: extra.phone || "",
+      location: extra.location || "",
+    };
+
+    setUser(merged);
+    setForm(merged);
+  }, []);
+
+  // ================= HANDLE CHANGE =================
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ================= SAVE =================
   const handleSave = () => {
     setUser(form);
+
+    // only save extra fields (not name/email)
+    localStorage.setItem(
+      "profile_extra",
+      JSON.stringify({
+        phone: form.phone,
+        location: form.location,
+      }),
+    );
+
     setEditMode(false);
   };
 
@@ -62,7 +88,9 @@ export default function Profile() {
         {/* PROFILE CARD */}
         <div style={styles.card}>
           <div style={styles.profileTop}>
-            <div style={styles.avatar}>{user.name.charAt(0)}</div>
+            <div style={styles.avatar}>
+              {user.name ? user.name.charAt(0) : "U"}
+            </div>
             <div>
               <div style={styles.name}>{user.name}</div>
               <div style={styles.meta}>{user.email}</div>
@@ -71,9 +99,8 @@ export default function Profile() {
 
           <div style={styles.divider}></div>
 
-          <ProfileField label="Employee ID" value={user.empId} />
-          <ProfileField label="Department" value={user.department} />
-          <ProfileField label="Location" value={user.location} />
+          <ProfileField label="Phone" value={user.phone || "—"} />
+          <ProfileField label="Location" value={user.location || "—"} />
         </div>
 
         {/* DETAILS FORM */}
@@ -85,7 +112,7 @@ export default function Profile() {
             name="name"
             value={form.name}
             onChange={handleChange}
-            disabled={!editMode}
+            disabled={true} // ❌ NOT editable
           />
 
           <FormField
@@ -93,7 +120,7 @@ export default function Profile() {
             name="email"
             value={form.email}
             onChange={handleChange}
-            disabled={!editMode}
+            disabled={true} // ❌ NOT editable
           />
 
           <FormField
@@ -105,42 +132,12 @@ export default function Profile() {
           />
 
           <FormField
-            label="Department"
-            name="department"
-            value={form.department}
-            onChange={handleChange}
-            disabled={!editMode}
-          />
-
-          <FormField
             label="Location"
             name="location"
             value={form.location}
             onChange={handleChange}
             disabled={!editMode}
           />
-        </div>
-      </div>
-
-      {/* EXTRA SECTION */}
-      <div style={styles.card}>
-        <div style={styles.sectionTitle}>Account Details</div>
-
-        <div style={styles.row}>
-          <div>
-            <div style={styles.label}>Role</div>
-            <div style={styles.value}>Software Engineer</div>
-          </div>
-
-          <div>
-            <div style={styles.label}>Status</div>
-            <div style={styles.value}>Active</div>
-          </div>
-
-          <div>
-            <div style={styles.label}>Joining Date</div>
-            <div style={styles.value}>01 Jan 2024</div>
-          </div>
         </div>
       </div>
     </div>
@@ -179,7 +176,7 @@ function FormField({ label, name, value, onChange, disabled }) {
 }
 
 // =====================================================
-// STYLES
+// STYLES (UNCHANGED)
 // =====================================================
 
 const styles = {
@@ -287,10 +284,5 @@ const styles = {
     padding: "8px",
     border: "1px solid #ccc",
     borderRadius: "6px",
-  },
-
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
   },
 };

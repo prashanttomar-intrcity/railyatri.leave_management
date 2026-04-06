@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getLeaves } from "../api/api";
 
 const API_BASE = "http://localhost:3000";
 
@@ -16,38 +17,73 @@ export default function Home() {
     type: "All",
   });
 
-  const user = useMemo(
-    () => ({
-      name: "Prashant",
-      role: "Software Engineer",
-      empId: "EMP001",
-      email: "prashant@example.com",
-      avatar: "P",
-    }),
-    [],
-  );
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+  });
 
-  const holidays = useMemo(
-    () => [
-      { date: "2026-01-01", name: "New Year" },
-      { date: "2026-01-26", name: "Republic Day" },
-      { date: "2026-03-20", name: "Eid-ul-Fitr" },
-      { date: "2026-08-15", name: "Independence Day" },
-      { date: "2026-10-02", name: "Gandhi Jayanti" },
-    ],
-    [],
-  );
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    setUser({
+      name: storedUser.name || "",
+      email: storedUser.email || "",
+    });
+  }, []);
 
   useEffect(() => {
     fetchLeaves();
   }, []);
 
+  // ================= HOLIDAY DATA =================
+  const holidayData = {
+    January: [
+      { date: "2026-01-01", name: "New Year's Day" },
+      { date: "2026-01-13", name: "Lohri" },
+      { date: "2026-01-26", name: "Republic Day" },
+    ],
+    February: [{ date: "2026-02-15", name: "Maha Shivaratri" }],
+    March: [{ date: "2026-03-20", name: "Eid-Ul-Fitar" }],
+    May: [{ date: "2026-05-27", name: "Eid Ul-Adha" }],
+    June: [{ date: "2026-06-26", name: "Muharram/Ashura" }],
+    July: [{ date: "2026-07-16", name: "Rath Yatra" }],
+    August: [
+      { date: "2026-08-15", name: "Independence Day" },
+      { date: "2026-08-28", name: "Raksha Bandhan" },
+    ],
+    September: [
+      { date: "2026-09-04", name: "Janmashtami" },
+      { date: "2026-09-25", name: "Ganesh Visarjan" },
+    ],
+    October: [{ date: "2026-10-02", name: "Gandhi Jayanti" }],
+    November: [
+      { date: "2026-11-01", name: "Govardhan Puja" },
+      { date: "2026-11-13", name: "Bhai Dooj" },
+      { date: "2026-11-26", name: "Chhath Puja" },
+    ],
+    December: [
+      { date: "2026-12-24", name: "Christmas Eve" },
+      { date: "2026-12-25", name: "Christmas" },
+    ],
+  };
+
+  // ================= FILTER UPCOMING =================
+  const holidays = useMemo(() => {
+    const today = new Date();
+
+    const all = Object.values(holidayData).flat();
+
+    return all
+      .filter((h) => new Date(h.date) >= today)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, []);
+
   const fetchLeaves = async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const res = await axios.get(`${API_BASE}/api/leave_requests`);
-      setLeaves(Array.isArray(res.data) ? res.data : []);
+      const res = await getLeaves(); // SAME AS TABS
+      setLeaves(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error(err);
       setError("Failed to load leaves");
@@ -78,9 +114,11 @@ export default function Home() {
 
     return {
       lop: count("Loss Of Pay"),
+      comp: count("Comp Off") + count("Comp - Off"),
+      planned: count("Planned Leave"),
+      unplanned: count("Unplanned Leave"),
       sick: count("Sick Leave"),
-      casual: count("Planned Leave"),
-      comp: count("Comp Off"),
+      restricted: count("Restricted Holiday"),
     };
   }, [leaves]);
 
@@ -155,12 +193,19 @@ export default function Home() {
 
       <div style={styles.grid2}>
         <div style={styles.card}>
-          <div style={styles.profileRow}>
-            <div style={styles.avatar}>{user.avatar}</div>
+          <div
+            style={{ ...styles.profileRow, cursor: "pointer" }}
+            onClick={() => handleNavigate("/profile")}
+          >
+            <div style={styles.avatar}>
+              {user.name
+                ? user.name.charAt(0).toUpperCase()
+                : user.email?.charAt(0).toUpperCase()}
+            </div>
+
             <div>
-              <div style={styles.name}>Welcome, {user.name}</div>
-              <div style={styles.meta}>{user.role}</div>
-              <div style={styles.meta}>ID: {user.empId}</div>
+              <div style={styles.name}>Welcome, {user.name?.split(" ")[0]}</div>
+
               <div style={styles.meta}>{user.email}</div>
             </div>
           </div>
@@ -168,9 +213,11 @@ export default function Home() {
 
         <div style={styles.kpiRow}>
           <KpiCard label="Loss Of Pay" value={summary.lop} />
-          <KpiCard label="Sick Leaves" value={summary.sick} />
-          <KpiCard label="Casual Leaves" value={summary.casual} />
           <KpiCard label="Comp Off" value={summary.comp} />
+          <KpiCard label="Planned Leave" value={summary.planned} />
+          <KpiCard label="Unplanned Leave" value={summary.unplanned} />
+          <KpiCard label="Sick Leave" value={summary.sick} />
+          <KpiCard label="Restricted Holiday" value={summary.restricted} />
         </div>
       </div>
 
@@ -190,8 +237,13 @@ export default function Home() {
             onClick={() => handleNavigate("/leave/calendar")}
           />
           <ActionCard
-            title="Holiday Calendar"
-            onClick={() => handleNavigate("/leave/holiday")}
+            title="Pending Leaves"
+            onClick={() => handleNavigate("/leave/pending-tab")}
+          />
+
+          <ActionCard
+            title="Leave History"
+            onClick={() => handleNavigate("/leave/history-tab")}
           />
         </div>
       </div>
@@ -383,7 +435,12 @@ const styles = {
   name: { fontSize: "16px", fontWeight: 600 },
   meta: { fontSize: "12px", color: "#666" },
 
-  kpiRow: { display: "flex", gap: "10px", flex: 1 },
+  kpiRow: {
+    display: "flex",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "10px",
+    flex: 1,
+  },
 
   kpiCard: {
     flex: 1,
@@ -423,7 +480,12 @@ const styles = {
   },
 
   rightSection: {
-    flex: 1, // 🔥 smaller sidebar
+    flex: 1,
+    maxHeight: "400px",
+    overflowY: "auto",
+
+    scrollbarWidth: "none", // Firefox
+    msOverflowStyle: "none", // IE
   },
 
   cardHeaderRow: {
@@ -446,7 +508,11 @@ const styles = {
     fontSize: "14px",
   },
 
-  holidayItem: { marginBottom: "10px" },
+  holidayItem: {
+    marginBottom: "12px",
+    paddingBottom: "8px",
+    borderBottom: "1px solid #eee",
+  },
   holidayName: { fontWeight: 500 },
   holidayDate: { fontSize: "12px", color: "#666" },
 
@@ -471,3 +537,17 @@ const styles = {
 };
 
 // END OF FILE
+// HIDE SCROLLBAR FOR CHROME
+const hideScrollbar = {
+  scrollbarWidth: "none",
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  const style = document.createElement("style");
+  style.innerHTML = `
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  `;
+  document.head.appendChild(style);
+});

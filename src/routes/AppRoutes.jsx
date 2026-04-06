@@ -5,9 +5,10 @@ import Home from "../pages/Home";
 import LeaveApply from "../pages/leave/LeaveApply";
 import LeaveBalance from "../pages/leave/LeaveBalance";
 import LeaveCalendar from "../pages/leave/LeaveCalendar";
-import HolidayCalendar from "../pages/leave/HolidayCalendar";
 import Profile from "../pages/Profile";
 import ProtectedRoute from "./ProtectedRoute";
+import PendingTab from "../pages/leave/components/PendingTab";
+import HistoryTab from "../pages/leave/components/HistoryTab";
 
 import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
@@ -56,10 +57,19 @@ export default function AppRoutes() {
         }
       />
       <Route
-        path="/leave/holiday"
+        path="/leave/pending-tab"
         element={
           <LayoutWrapper>
-            <HolidayCalendar />
+            <PendingTab />
+          </LayoutWrapper>
+        }
+      />
+
+      <Route
+        path="/leave/history-tab"
+        element={
+          <LayoutWrapper>
+            <HistoryTab />
           </LayoutWrapper>
         }
       />

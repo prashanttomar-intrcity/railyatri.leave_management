@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
+import { getLeaves } from "../../api/api";
 
 // =========================================================
 // LEAVE CALENDAR (FULL ENTERPRISE UI - 400+ LINES)
@@ -8,6 +10,35 @@ export default function LeaveCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filter, setFilter] = useState("Me");
   const [search, setSearch] = useState("");
+  const [leaveDates, setLeaveDates] = useState([]);
+
+  useEffect(() => {
+    fetchLeaves();
+  }, []);
+
+  const fetchLeaves = async () => {
+    try {
+      const data = await getLeaves();
+
+      let dates = [];
+
+      data.forEach((leave) => {
+        const start = new Date(leave.from_date);
+        const end = new Date(leave.to_date);
+
+        let current = new Date(start);
+
+        while (current <= end) {
+          dates.push(current.toISOString().split("T")[0]);
+          current.setDate(current.getDate() + 1);
+        }
+      });
+
+      setLeaveDates(dates);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // ================= MONTH NAVIGATION =================
 
@@ -114,7 +145,13 @@ export default function LeaveCalendar() {
           {/* DAYS GRID */}
           <div style={styles.daysGrid}>
             {days.map((day, index) => (
-              <DayCell key={index} day={day} holiday={holidays[day]} />
+              <DayCell
+                key={index}
+                day={day}
+                holiday={holidays[day]}
+                currentMonth={currentMonth}
+                leaveDates={leaveDates}
+              />
             ))}
           </div>
 
@@ -161,11 +198,24 @@ export default function LeaveCalendar() {
 // DAY CELL COMPONENT
 // =========================================================
 
-function DayCell({ day, holiday }) {
+function DayCell({ day, holiday, currentMonth, leaveDates }) {
   if (!day) return <div style={styles.dayCell}></div>;
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth() + 1;
+
+  const formattedDate = `${year}-${String(month).padStart(2, "0")}-${String(
+    day,
+  ).padStart(2, "0")}`;
+
+  const isLeave = leaveDates.includes(formattedDate);
 
   return (
-    <div style={styles.dayCell}>
+    <div
+      style={{
+        ...styles.dayCell,
+        background: isLeave ? "#fde2e2" : "#fff",
+      }}
+    >
       <div style={styles.dayNumber}>{day}</div>
 
       {holiday === "general" && <div style={styles.generalDot}></div>}

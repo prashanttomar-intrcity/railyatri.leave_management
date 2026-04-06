@@ -30,6 +30,11 @@ export const applyLeave = async (data) => {
 export const getLeaves = async () => {
   const user = JSON.parse(localStorage.getItem("user"));
 
+  if (!user || !user.id) {
+    console.error("User not found");
+    return [];
+  }
+
   const res = await fetch(`${BASE_URL}/leave_requests?user_id=${user.id}`);
 
   return res.json();
