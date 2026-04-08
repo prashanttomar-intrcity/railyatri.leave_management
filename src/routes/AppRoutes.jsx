@@ -9,6 +9,9 @@ import Profile from "../pages/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import PendingTab from "../pages/leave/components/PendingTab";
 import HistoryTab from "../pages/leave/components/HistoryTab";
+import ReviewLeave from "../pages/manager/ReviewLeave";
+import LeaveDetails from "../pages/manager/LeaveDetails";
+import ProtectedManagerRoute from "./ProtectedManagerRoute";
 
 import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
@@ -79,6 +82,28 @@ export default function AppRoutes() {
           <LayoutWrapper>
             <Profile />
           </LayoutWrapper>
+        }
+      />
+
+      <Route
+        path="/manager/review"
+        element={
+          <ProtectedRoute>
+            <LayoutWrapper>
+              <ReviewLeave />
+            </LayoutWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/manager/review/:id"
+        element={
+          <ProtectedManagerRoute>
+            <LayoutWrapper>
+              <LeaveDetails />
+            </LayoutWrapper>
+          </ProtectedManagerRoute>
         }
       />
     </Routes>

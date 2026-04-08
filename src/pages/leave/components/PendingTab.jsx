@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getLeaves, updateLeaveStatus } from "../../../api/api";
+import ConfirmModal from "../../../components/ConfirmModal";
+import SuccessModal from "../../../components/SuccessModal";
 
 // =========================================================
 // PENDING TAB (EMPLOYEE VIEW - WITHDRAW ONLY - REAL API)
@@ -14,6 +16,11 @@ export default function PendingTab() {
     type: "All",
   });
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const [successOpen, setSuccessOpen] = useState(false);
+
   // ================= FETCH FROM BACKEND =================
   useEffect(() => {
     fetchLeaves();
@@ -27,6 +34,7 @@ export default function PendingTab() {
     // convert backend format to UI format
     const formatted = res
       .filter((l) => l.status === "pending")
+      .reverse()
       .map((l) => ({
         id: l.id,
         type: l.leave_type,
@@ -54,16 +62,9 @@ export default function PendingTab() {
   }, [data, filters]);
 
   // ================= WITHDRAW =================
-  const handleWithdraw = async (id) => {
-    const confirm = window.confirm(
-      "Are you sure you want to withdraw this leave request?",
-    );
-
-    if (!confirm) return;
-
-    await updateLeaveStatus(id, "withdrawn");
-
-    fetchLeaves(); // refresh
+  const handleWithdraw = (id) => {
+    setSelectedId(id);
+    setConfirmOpen(true);
   };
 
   return (
@@ -140,6 +141,24 @@ export default function PendingTab() {
           </table>
         )}
       </div>
+      <ConfirmModal
+        open={confirmOpen}
+        title="Withdraw Leave"
+        message="Are you sure you want to withdraw this leave application?"
+        confirmText="Withdraw"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          await updateLeaveStatus(selectedId, "withdrawn");
+          setConfirmOpen(false);
+          setSuccessOpen(true);
+          fetchLeaves();
+        }}
+      />
+      <SuccessModal
+        open={successOpen}
+        message="Leave withdrawn successfully"
+        onClose={() => setSuccessOpen(false)}
+      />
     </div>
   );
 }

@@ -12,6 +12,8 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const [openMenu, setOpenMenu] = useState({
     leave: true,
   });
@@ -87,6 +89,14 @@ export default function Sidebar() {
               active={isActive("/leave/calendar")}
               onClick={() => navigate("/leave/calendar")}
             />
+
+            {user?.role === "manager" && (
+              <SubItem
+                label="Review Leave"
+                active={isActive("/manager/review")}
+                onClick={() => navigate("/manager/review")}
+              />
+            )}
           </div>
         </div>
       </div>

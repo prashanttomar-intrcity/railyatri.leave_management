@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { login } from "../../api/api";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [form, setForm] = useState({
     email: "",
@@ -26,7 +27,9 @@ export default function Login() {
       }
 
       localStorage.setItem("user", JSON.stringify(res.user));
-      navigate("/home");
+
+      const from = location.state?.from || "/home";
+      navigate(from);
     } catch (err) {
       alert("Login failed");
     }

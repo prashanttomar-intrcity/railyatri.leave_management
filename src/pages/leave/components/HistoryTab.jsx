@@ -26,6 +26,7 @@ export default function HistoryTab() {
 
     const formatted = res
       .filter((l) => l.status !== "pending")
+      .reverse()
       .map((l) => ({
         id: l.id,
         type: l.leave_type,
@@ -34,6 +35,7 @@ export default function HistoryTab() {
         days: l.days,
         status: capitalize(l.status),
         reason: l.reason,
+        managerComment: l.manager_comment || "-",
       }));
 
     setData(formatted);
@@ -103,9 +105,10 @@ export default function HistoryTab() {
                 <th style={styles.thLeft}>Type</th>
                 <th style={styles.th}>From</th>
                 <th style={styles.th}>To</th>
+                <th style={styles.thLeft}>Reason</th>
                 <th style={styles.th}>Days</th>
                 <th style={styles.th}>Status</th>
-                <th style={styles.thLeft}>Reason</th>
+                <th style={styles.thLeft}>Manager Comment</th>
               </tr>
             </thead>
 
@@ -115,11 +118,12 @@ export default function HistoryTab() {
                   <td style={styles.tdLeft}>{item.type}</td>
                   <td style={styles.td}>{item.from}</td>
                   <td style={styles.td}>{item.to}</td>
+                  <td style={styles.tdLeft}>{item.reason}</td>
                   <td style={styles.td}>{item.days}</td>
                   <td style={styles.td}>
                     <StatusBadge status={item.status} />
                   </td>
-                  <td style={styles.tdLeft}>{item.reason}</td>
+                  <td style={styles.tdLeft}>{item.managerComment}</td>
                 </tr>
               ))}
             </tbody>

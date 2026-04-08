@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { applyLeave } from "../../../api/api";
+import ConfirmModal from "../../../components/ConfirmModal";
+import SuccessModal from "../../../components/SuccessModal";
 
 export default function ApplyLeaveForm() {
   const [form, setForm] = useState({
@@ -12,6 +14,9 @@ export default function ApplyLeaveForm() {
     cc: [],
     files: [],
   });
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -138,10 +143,9 @@ export default function ApplyLeaveForm() {
     console.log("RESPONSE:", res);
 
     if (res.id) {
-      alert("Leave Applied Successfully");
-    } else {
-      alert(JSON.stringify(res));
+      return true;
     }
+    return false;
   };
 
   const resetForm = () => {
@@ -317,7 +321,7 @@ export default function ApplyLeaveForm() {
       {/* ACTIONS */}
       <div style={styles.card}>
         <div style={styles.actions}>
-          <button style={styles.submit} onClick={handleSubmit}>
+          <button style={styles.submit} onClick={() => setConfirmOpen(true)}>
             {loading ? "Submitting..." : "Submit"}
           </button>
           <button style={styles.cancel} onClick={resetForm}>
@@ -329,6 +333,23 @@ export default function ApplyLeaveForm() {
           <div style={styles.success}>Leave applied successfully</div>
         )}
       </div>
+      <ConfirmModal
+        open={confirmOpen}
+        title="Apply Leave"
+        message="Are you sure you want to apply for this leave?"
+        confirmText="Submit"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          const success = await handleSubmit();
+          setConfirmOpen(false);
+          if (success) setSuccessOpen(true);
+        }}
+      />
+      <SuccessModal
+        open={successOpen}
+        message="Leave applied successfully"
+        onClose={() => setSuccessOpen(false)}
+      />
     </div>
   );
 }

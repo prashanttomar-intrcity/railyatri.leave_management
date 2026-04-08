@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { applyRestrictedHoliday } from "../../../api/api";
+import ConfirmModal from "../../../components/ConfirmModal";
+import SuccessModal from "../../../components/SuccessModal";
 
 export default function RestrictedHoliday() {
   const [form, setForm] = useState({
@@ -10,6 +12,9 @@ export default function RestrictedHoliday() {
     cc: [],
     manager: "",
   });
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -237,7 +242,7 @@ export default function RestrictedHoliday() {
 
         {/* ACTIONS */}
         <div style={styles.actions}>
-          <button style={styles.submit} onClick={handleSubmit}>
+          <button style={styles.submit} onClick={() => setConfirmOpen(true)}>
             {loading ? "Submitting..." : "Submit"}
           </button>
 
@@ -250,6 +255,23 @@ export default function RestrictedHoliday() {
           <div style={styles.success}>Holiday Applied Successfully</div>
         )}
       </div>
+      <ConfirmModal
+        open={confirmOpen}
+        title="Apply Leave"
+        message="Are you sure you want to apply for this leave?"
+        confirmText="Submit"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          await handleSubmit();
+          setConfirmOpen(false);
+          setSuccessOpen(true);
+        }}
+      />
+      <SuccessModal
+        open={successOpen}
+        message="Restricted Holiday Leave applied successfully"
+        onClose={() => setSuccessOpen(false)}
+      />
     </div>
   );
 }

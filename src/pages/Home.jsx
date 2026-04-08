@@ -20,6 +20,7 @@ export default function Home() {
   const [user, setUser] = useState({
     name: "",
     email: "",
+    role: "",
   });
 
   useEffect(() => {
@@ -27,8 +28,11 @@ export default function Home() {
     setUser({
       name: storedUser.name || "",
       email: storedUser.email || "",
+      role: storedUser.role || "employee",
     });
   }, []);
+
+  const isManager = user.role === "manager";
 
   useEffect(() => {
     fetchLeaves();

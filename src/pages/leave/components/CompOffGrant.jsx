@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { applyCompOff } from "../../../api/api";
+import ConfirmModal from "../../../components/ConfirmModal";
+import SuccessModal from "../../../components/SuccessModal";
 
 export default function CompOffGrant() {
   const [form, setForm] = useState({
@@ -13,6 +15,8 @@ export default function CompOffGrant() {
   });
 
   const [leaveDays, setLeaveDays] = useState(0);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -277,7 +281,7 @@ export default function CompOffGrant() {
 
         {/* ACTIONS */}
         <div style={styles.actions}>
-          <button style={styles.submit} onClick={handleSubmit}>
+          <button style={styles.submit} onClick={() => setConfirmOpen(true)}>
             {loading ? "Submitting..." : "Submit"}
           </button>
           <button style={styles.cancel} onClick={resetForm}>
@@ -289,6 +293,23 @@ export default function CompOffGrant() {
           <div style={styles.success}>Comp Off Applied Successfully</div>
         )}
       </div>
+      <ConfirmModal
+        open={confirmOpen}
+        title="Apply Leave"
+        message="Are you sure you want to apply for this leave?"
+        confirmText="Submit"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          await handleSubmit();
+          setConfirmOpen(false);
+          setSuccessOpen(true);
+        }}
+      />
+      <SuccessModal
+        open={successOpen}
+        message="Comp Off leave applied successfully"
+        onClose={() => setSuccessOpen(false)}
+      />
     </div>
   );
 }

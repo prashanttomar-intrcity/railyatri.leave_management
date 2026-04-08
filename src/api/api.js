@@ -54,9 +54,17 @@ export const applyCompOff = (data) =>
     body: JSON.stringify(data),
   }).then((res) => res.json());
 
-export const updateLeaveStatus = (id, status) =>
+export const updateLeaveStatus = (id, status, comment) =>
   fetch(`${BASE_URL}/leave_requests/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({
+      status,
+      manager_comment: comment,
+    }),
   }).then((res) => res.json());
+
+export const getAllLeaves = async () => {
+  const res = await fetch(`${BASE_URL}/manager/leaves`);
+  return res.json();
+};
