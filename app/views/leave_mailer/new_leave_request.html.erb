@@ -1,0 +1,68 @@
+<div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px;">
+  
+  <!-- MAIN CARD -->
+  <div style="max-width:800px; width:98%; margin:auto; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 5px 20px rgba(0,0,0,0.1);">
+
+    <!-- HEADER -->
+    <div style="background:#1f2a37; color:#fff; padding:20px;">
+      <h2 style="margin:0;">📩 Leave Request</h2>
+    </div>
+
+    <!-- BODY -->
+    <div style="padding:25px;">
+
+      <!-- USER INFO -->
+      <div style="margin-bottom:20px;">
+        <h3 style="margin:0 0 10px;">Captain Details</h3>
+        <p><strong>Name:</strong> <%= @user.name %></p>
+        <p><strong>Email:</strong> <%= @user.email %></p>
+      </div>
+
+      <!-- LEAVE DETAILS -->
+      <div style="margin-bottom:20px;">
+        <h3 style="margin-bottom:10px;">Leave Details</h3>
+
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:120px; background:#f5f6f8; padding:10px; border-radius:6px;">
+            <strong>Type</strong><br/>
+            <%= @leave.leave_type %>
+          </div>
+
+          <div style="flex:1; min-width:120px; background:#f5f6f8; padding:10px; border-radius:6px;">
+            <strong>From</strong><br/>
+            <%= @leave.from_date %>
+          </div>
+
+          <div style="flex:1; min-width:120px; background:#f5f6f8; padding:10px; border-radius:6px;">
+            <strong>To</strong><br/>
+            <%= @leave.to_date %>
+          </div>
+
+          <div style="flex:1; min-width:120px; background:#f5f6f8; padding:10px; border-radius:6px;">
+            <strong>Days</strong><br/>
+            <%= @leave.days %>
+          </div>
+        </div>
+      </div>
+
+      <!-- REASON -->
+      <div style="margin-bottom:20px;">
+        <h3>Reason</h3>
+        <div style="background:#f9fafb; padding:12px; border-radius:6px; border:1px solid #eee;">
+          <%= @leave.reason %>
+        </div>
+      </div>
+
+      <!-- ACTION BUTTON -->
+      <div style="text-align:center; margin-top:25px;">
+        <a href="<%= @link %>"
+           style="display:inline-block; padding:12px 20px; background:#1976d2; color:#fff; text-decoration:none; border-radius:6px; font-weight:600;">
+           Review Leave Request
+        </a>
+      </div>
+
+    </div>
+
+
+  </div>
+</div>

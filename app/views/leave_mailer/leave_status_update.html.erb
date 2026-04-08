@@ -1,0 +1,73 @@
+<div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:15px;">
+
+  <div style="max-width:800px; width:95%; margin:auto; background:#fff; border-radius:10px; overflow:hidden;">
+
+    <!-- HEADER -->
+    <div style="background:#1f2a37; color:#fff; padding:25px 30px;">
+      <h2 style="margin:0;">📢 Leave Status Update</h2>
+    </div>
+
+    <!-- BODY -->
+    <div style="padding:30px;">
+
+      <h3>Hello <%= @user.name %>,</h3>
+
+      <p style="font-size:15px;">
+        Your leave request has been 
+        <strong style="color:<%= @leave.status == 'approved' ? '#2e7d32' : '#d32f2f' %>;">
+          <%= @leave.status.capitalize %>
+        </strong>.
+      </p>
+
+      <!-- DETAILS BOX -->
+      <div style="margin-top:20px;">
+
+        <div style="display:flex;">
+
+          <div style="flex:1; background:#f1f3f5; padding:12px; border-radius:8px; margin-right:10px;">
+            <strong>Type</strong><br/>
+            <%= @leave.leave_type %>
+          </div>
+
+          <div style="flex:1; background:#f1f3f5; padding:12px; border-radius:8px; margin-right:10px;">
+            <strong>From</strong><br/>
+            <%= @leave.from_date %>
+          </div>
+
+          <div style="flex:1; background:#f1f3f5; padding:12px; border-radius:8px; margin-right:10px;">
+            <strong>To</strong><br/>
+            <%= @leave.to_date %>
+          </div>
+
+          <div style="flex:1; background:#f1f3f5; padding:12px; border-radius:8px;">
+            <strong>Days</strong><br/>
+            <%= @leave.days %>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- REASON -->
+      <div style="margin-top:20px;">
+        <strong>Reason</strong>
+        <div style="background:#f9fafb; padding:12px; border-radius:6px; margin-top:5px;">
+          <%= @leave.reason %>
+        </div>
+      </div>
+
+      <!-- MANAGER COMMENT -->
+      <div style="margin-top:20px;">
+        <strong>Manager Comment</strong>
+        <div style="background:#eef2ff; padding:12px; border-radius:6px; margin-top:5px;">
+          <%= @leave.manager_comment.present? ? @leave.manager_comment : "No comment provided" %>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <p style="margin-top:30px; font-size:13px; color:#666;">
+        This is an automated message. Please do not reply.
+      </p>
+
+    </div>
+  </div>
+</div>

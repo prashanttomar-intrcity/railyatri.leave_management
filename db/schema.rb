@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_01_161631) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_06_103016) do
   create_table "holidays", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "date"
@@ -35,6 +35,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_161631) do
     t.integer "days"
     t.date "from_date"
     t.string "leave_type"
+    t.text "manager_comment"
     t.text "reason"
     t.string "status"
     t.date "to_date"
@@ -48,6 +49,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_161631) do
     t.string "email"
     t.string "name"
     t.string "password_digest"
+    t.string "role", default: "employee"
     t.datetime "updated_at", null: false
   end
 

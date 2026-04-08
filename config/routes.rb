@@ -10,5 +10,7 @@ Rails.application.routes.draw do
     post "login", to: "auth#login"
 
     resources :leave_requests
+
+    get "manager/leaves", to: "leave_requests#all_leaves"
   end
 end

@@ -6,6 +6,12 @@ def index
   render json: leaves
 end
 
+def all_leaves
+  leaves = LeaveRequest.includes(:user).order(created_at: :desc)
+
+  render json: leaves.as_json(include: { user: { only: [:id, :name, :email] } })
+end
+
   def create
   
   data = params[:leave_request] || params
@@ -23,17 +29,26 @@ end
   )
 
   if leave.save
-    render json: leave, status: :created
+  LeaveMailer.new_leave_request(leave).deliver_now
+
+  render json: leave, status: :created
   else
     render json: { errors: leave.errors.full_messages }, status: :unprocessable_entity
   end
 end
 
   def update
-    leave = LeaveRequest.find(params[:id])
-    leave.update(status: params[:status])
-    render json: leave
-  end
+  leave = LeaveRequest.find(params[:id])
+
+  leave.update(
+    status: params[:status],
+    manager_comment: params[:manager_comment]
+  )
+  
+  LeaveMailer.leave_status_update(leave).deliver_now
+  
+  render json: leave
+end
 
   def destroy
     leave = LeaveRequest.find(params[:id])
