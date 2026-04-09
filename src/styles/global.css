@@ -52,3 +52,30 @@ body {
 .menu-item:hover {
   background: #57606f;
 }
+
+@media (max-width: 768px) {
+  h1,
+  h2 {
+    font-size: 18px !important;
+  }
+
+  .card {
+    padding: 15px !important;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+/* FIX OVERFLOW ISSUES */
+body,
+html {
+  overflow-x: hidden;
+}
+
+/* MOBILE WIDTH FIX */
+@media (max-width: 768px) {
+  * {
+    max-width: 100%;
+  }
+}

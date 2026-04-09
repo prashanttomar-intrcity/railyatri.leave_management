@@ -4,6 +4,13 @@ import ConfirmModal from "../../../components/ConfirmModal";
 import SuccessModal from "../../../components/SuccessModal";
 
 export default function CompOffGrant() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [form, setForm] = useState({
     type: "Comp Off",
     fromDate: "",
@@ -139,7 +146,12 @@ export default function CompOffGrant() {
         <h3 style={styles.subtitle}>Applying for Comp Off Grant</h3>
 
         {/* GRID */}
-        <div style={styles.grid}>
+        <div
+          style={{
+            ...styles.grid,
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          }}
+        >
           <Field label="Leave Type" error={errors.type}>
             <input
               value="Comp Off"
@@ -378,7 +390,7 @@ const styles = {
 
   grid: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr 1fr",
+    gridTemplateColumns: window.innerWidth < 768 ? "1fr" : "1fr 1fr 1fr",
     gap: "15px",
   },
 
@@ -414,6 +426,7 @@ const styles = {
   row: {
     display: "flex",
     alignItems: "center",
+    flexWrap: "wrap",
     gap: "10px",
     position: "relative",
   },
@@ -430,11 +443,14 @@ const styles = {
     position: "absolute",
     top: "45px",
     left: "0",
+    right: 0,
     background: "#fff",
     border: "1px solid #ccc",
     borderRadius: "6px",
     width: "200px",
     zIndex: 10,
+    maxHeight: "150px",
+    overflowY: "auto",
   },
 
   dropdownItem: {
@@ -450,7 +466,8 @@ const styles = {
     background: "#f1f1f1",
     padding: "10px",
     borderRadius: "6px",
-    minWidth: "250px",
+    minWidth: "0",
+    flex: 1,
   },
 
   avatar: {
@@ -497,6 +514,7 @@ const styles = {
     padding: "10px 20px",
     border: "none",
     borderRadius: "6px",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   cancel: {
@@ -504,6 +522,7 @@ const styles = {
     padding: "10px 20px",
     border: "none",
     borderRadius: "6px",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   success: {

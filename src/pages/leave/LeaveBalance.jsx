@@ -1,20 +1,93 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getLeaves } from "../../api/api";
 
 // =====================================================
 // LEAVE BALANCE PAGE (FULL PROFESSIONAL HR DASHBOARD UI)
 // =====================================================
 
 export default function LeaveBalance() {
+  const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    fetchLeaveBalance();
+  }, []);
+
   const [year, setYear] = useState("2026");
 
-  const leaveData = [
-    { name: "Loss Of Pay", balance: 0, granted: 0 },
-    { name: "Comp - Off", balance: 0, granted: 0 },
-    { name: "Planned Leaves", balance: 0, granted: 0 },
-    { name: "Unplanned Leaves", balance: 0, granted: 0 },
-    { name: "Sick Leaves", balance: 0, granted: 0 },
-    { name: "OD", balance: 0, granted: 0 },
-  ];
+  const [leaveData, setLeaveData] = useState([]);
+
+  const fetchLeaveBalance = async () => {
+    try {
+      const data = await getLeaves();
+
+      // Only current user (IMPORTANT)
+
+      const myLeaves = data;
+
+      if (!myLeaves || myLeaves.length === 0) {
+        setLeaveData([
+          { name: "Loss Of Pay", granted: 0, balance: 5 },
+          { name: "Comp - Off", granted: 0, balance: 5 },
+          { name: "Planned Leaves", granted: 0, balance: 5 },
+          { name: "Unplanned Leaves", granted: 0, balance: 5 },
+          { name: "Sick Leaves", granted: 0, balance: 5 },
+          { name: "OD", granted: 0, balance: 5 },
+          { name: "Restricted Holiday", granted: 0, balance: 5 },
+        ]);
+        return;
+      }
+
+      const leaveTypes = [
+        "Loss Of Pay",
+        "Comp - Off",
+        "Planned Leaves",
+        "Unplanned Leaves",
+        "Sick Leaves",
+        "OD",
+        "Restricted Holiday",
+      ];
+
+      const result = leaveTypes.map((type) => {
+        const normalize = (str) => str?.toLowerCase().replace(/[\s-]/g, "");
+
+        const approvedLeaves = myLeaves.filter(
+          (leave) =>
+            normalize(leave.leave_type) === normalize(type) &&
+            leave.status?.toLowerCase() === "approved",
+        );
+
+        // count days
+        let approvedDays = 0;
+
+        approvedLeaves.forEach((leave) => {
+          const from = new Date(leave.from_date);
+          const to = new Date(leave.to_date);
+
+          const diff = (to - from) / (1000 * 60 * 60 * 24) + 1;
+
+          approvedDays += diff;
+        });
+
+        return {
+          name: type,
+          granted: approvedDays,
+          balance: Math.max(0, 5 - approvedDays), // total 5 leaves
+        };
+      });
+
+      setLeaveData(result);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -23,7 +96,12 @@ export default function LeaveBalance() {
         <h2 style={styles.title}>Leave Details</h2>
 
         <div style={styles.actions}>
-          <button style={styles.applyBtn}>Apply</button>
+          <button
+            style={styles.applyBtn}
+            onClick={() => navigate("/leave/apply")}
+          >
+            Apply
+          </button>
 
           <select
             value={year}
@@ -90,6 +168,7 @@ const styles = {
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
+    flexWrap: "wrap",
     alignItems: "center",
     marginBottom: "20px",
   },
@@ -132,7 +211,7 @@ const styles = {
 
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
+    gridTemplateColumns: window.innerWidth < 768 ? "1fr" : "repeat(3, 1fr)",
     gap: "20px",
   },
 

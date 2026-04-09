@@ -93,7 +93,7 @@ export default function HistoryTab() {
         </select>
       </div>
 
-      <div style={styles.card}>
+      <div style={{ ...styles.card, overflowX: "auto" }}>
         {loading ? (
           <div style={styles.center}>Loading...</div>
         ) : filtered.length === 0 ? (
@@ -166,7 +166,12 @@ function StatusBadge({ status }) {
 const styles = {
   container: { padding: "10px" },
   title: { fontSize: "16px", fontWeight: "600", marginBottom: "10px" },
-  filterRow: { display: "flex", gap: "10px", marginBottom: "10px" },
+  filterRow: {
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    marginBottom: "10px",
+  },
   input: {
     padding: "8px",
     border: "1px solid #ccc",

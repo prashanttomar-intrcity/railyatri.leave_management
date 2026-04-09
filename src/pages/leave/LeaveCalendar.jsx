@@ -7,6 +7,13 @@ import { getLeaves } from "../../api/api";
 // =========================================================
 
 export default function LeaveCalendar() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filter, setFilter] = useState("Me");
   const [search, setSearch] = useState("");
@@ -99,26 +106,33 @@ export default function LeaveCalendar() {
       {/* HEADER */}
       <div style={styles.header}>
         <h2 style={styles.title}>Leave Calendar</h2>
-      </div>
 
-      {/* FILTER */}
-      <div style={styles.filterRow}>
-        <div>
-          <label style={styles.label}>Filter Type</label>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            style={styles.input}
-          >
-            <option>Me</option>
-            <option>Team</option>
-            <option>All</option>
-          </select>
-        </div>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          style={styles.input}
+        >
+          <option>Me</option>
+          <option>Team</option>
+          <option>All</option>
+        </select>
       </div>
 
       {/* MAIN GRID */}
-      <div style={styles.mainGrid}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {/* LEAVE TRANSACTIONS FULL WIDTH */}
+        <div style={styles.transactionsCard}>
+          <div style={styles.transactionsHeader}>Leave Transactions (0)</div>
+
+          <div style={styles.tableHeader}>
+            <span>Employee</span>
+            <span>Days</span>
+            <span>From-To</span>
+          </div>
+
+          <div style={styles.emptyState}>No Employees are on leave</div>
+        </div>
+
         {/* CALENDAR */}
         <div style={styles.calendarCard}>
           <div style={styles.calendarHeader}>
@@ -162,31 +176,6 @@ export default function LeaveCalendar() {
             <span>Restricted Holiday</span>
             <span style={styles.legendDotPurple}></span>
             <span>General Holiday</span>
-          </div>
-        </div>
-
-        {/* SIDE PANEL */}
-        <div style={styles.sidePanel}>
-          <div style={styles.searchRow}>
-            <input
-              placeholder="Search Employee"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={styles.input}
-            />
-            <button style={styles.filterBtn}>⚲</button>
-          </div>
-
-          <div style={styles.transactionsCard}>
-            <div style={styles.transactionsHeader}>Leave Transactions (0)</div>
-
-            <div style={styles.tableHeader}>
-              <span>Employee</span>
-              <span>Days</span>
-              <span>From-To</span>
-            </div>
-
-            <div style={styles.emptyState}>No Employees are on leave</div>
           </div>
         </div>
       </div>
@@ -240,6 +229,7 @@ const styles = {
   header: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: "20px",
   },
 
@@ -382,6 +372,7 @@ const styles = {
 
   searchRow: {
     display: "flex",
+    flexWrap: "wrap",
     gap: "5px",
   },
 

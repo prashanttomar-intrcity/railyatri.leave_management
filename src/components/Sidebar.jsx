@@ -8,7 +8,7 @@ import EventNoteOutlinedIcon from "@mui/icons-material/EventNoteOutlined";
 // SIDEBAR (DARK GREY + LOGO BOX + WHITE ICONS)
 // ======================================================
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, setIsOpen, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,7 +30,14 @@ export default function Sidebar() {
   const isParentActive = (paths) => paths.includes(location.pathname);
 
   return (
-    <div style={styles.sidebar}>
+    <div
+      style={{
+        ...styles.sidebar,
+        left: isMobile ? (isOpen ? "0" : "-250px") : "0",
+        transition: "0.3s",
+        zIndex: 1000,
+      }}
+    >
       {/* NEW LOGO SECTION */}
       <Box sx={styles.logoBox}>
         <img
@@ -75,7 +82,10 @@ export default function Sidebar() {
             <SubItem
               label="Apply Leave"
               active={isActive("/leave/apply")}
-              onClick={() => navigate("/leave/apply")}
+              onClick={() => {
+                navigate("/leave/apply");
+                if (isMobile) setIsOpen(false);
+              }}
             />
 
             <SubItem
@@ -153,9 +163,8 @@ const styles = {
   sidebar: {
     width: "250px",
     height: "100vh",
-    background: "#1f2933",
+    background: "#1f4494",
     position: "fixed",
-    left: 0,
     top: 0,
     display: "flex",
     flexDirection: "column",

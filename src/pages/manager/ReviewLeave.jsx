@@ -5,6 +5,17 @@ import ConfirmModal from "../../components/ConfirmModal";
 import SuccessModal from "../../components/SuccessModal";
 
 export default function ReviewLeave() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const [leaves, setLeaves] = useState([]);
   const navigate = useNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -52,13 +63,28 @@ export default function ReviewLeave() {
     }
   };
 
+  const filteredLeaves = leaves.filter((leave) => {
+    const matchType =
+      !filterType || filterType === "All" || leave.leave_type === filterType;
+
+    const leaveFrom = new Date(leave.from_date);
+    const matchFrom = !fromDate || leaveFrom >= new Date(fromDate);
+    const matchTo = !toDate || leaveFrom <= new Date(toDate);
+
+    return matchType && matchFrom && matchTo;
+  });
+
+  const paginatedLeaves = filteredLeaves.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   return (
     <div style={styles.container}>
       <div style={styles.topHeader}>
         <h2 style={styles.heading}>Review Leave</h2>
 
-        <div style={styles.filterContainer}>
-          {/* FROM */}
+        <div style={styles.filterRow}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>From</label>
             <input
@@ -69,7 +95,6 @@ export default function ReviewLeave() {
             />
           </div>
 
-          {/* TO */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>To</label>
             <input
@@ -80,7 +105,6 @@ export default function ReviewLeave() {
             />
           </div>
 
-          {/* LEAVE TYPE */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Leave Type</label>
             <select
@@ -103,32 +127,18 @@ export default function ReviewLeave() {
       </div>
 
       <div style={styles.table}>
-        <div style={styles.headerRow}>
-          <div>Name</div>
-          <div>Type</div>
-          <div>From</div>
-          <div>To</div>
-          <div>Reason</div>
-          <div>Status</div>
-          <div>Action</div>
-        </div>
+        <div style={styles.tableInner}>
+          <div style={styles.headerRow}>
+            <div>Name</div>
+            <div>Type</div>
+            <div>From</div>
+            <div>To</div>
+            <div>Reason</div>
+            <div>Status</div>
+            <div>Action</div>
+          </div>
 
-        {leaves
-          .filter((leave) => {
-            const matchType =
-              !filterType ||
-              filterType === "All" ||
-              leave.leave_type === filterType;
-
-            const leaveFrom = new Date(leave.from_date);
-
-            const matchFrom = !fromDate || leaveFrom >= new Date(fromDate);
-
-            const matchTo = !toDate || leaveFrom <= new Date(toDate);
-
-            return matchType && matchFrom && matchTo;
-          })
-          .map((leave) => (
+          {paginatedLeaves.map((leave) => (
             <div
               key={leave.id}
               style={{ ...styles.row, cursor: "pointer" }}
@@ -143,6 +153,7 @@ export default function ReviewLeave() {
               <div style={styles.cell}>{leave.from_date}</div>
               <div style={styles.cell}>{leave.to_date}</div>
               <div style={styles.cell}>{leave.reason}</div>
+
               <div style={styles.cell}>
                 <span
                   style={{
@@ -182,24 +193,12 @@ export default function ReviewLeave() {
                 ) : (
                   <>
                     <button
-                      style={{
-                        ...styles.approve,
-                        opacity: 0.5,
-                        cursor: "not-allowed",
-                      }}
+                      style={{ ...styles.approve, opacity: 0.5 }}
                       disabled
                     >
                       Approve
                     </button>
-
-                    <button
-                      style={{
-                        ...styles.reject,
-                        opacity: 0.5,
-                        cursor: "not-allowed",
-                      }}
-                      disabled
-                    >
+                    <button style={{ ...styles.reject, opacity: 0.5 }} disabled>
                       Reject
                     </button>
                   </>
@@ -207,6 +206,25 @@ export default function ReviewLeave() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div style={styles.pagination}>
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((p) => p - 1)}
+        >
+          ◀
+        </button>
+
+        <span>Page {currentPage}</span>
+
+        <button
+          disabled={currentPage * itemsPerPage >= filteredLeaves.length}
+          onClick={() => setCurrentPage((p) => p + 1)}
+        >
+          ▶
+        </button>
       </div>
 
       {confirmOpen && (
@@ -334,6 +352,7 @@ const modalStyles = {
     justifyContent: "flex-end",
     gap: "10px",
     marginTop: "15px",
+    flexWrap: "wrap",
   },
 };
 
@@ -344,38 +363,92 @@ const styles = {
     minHeight: "100vh",
   },
 
+  tableInner: {
+    minWidth: "1300px",
+  },
+
   heading: {
     fontSize: "22px",
     marginBottom: "20px",
+  },
+
+  firstRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+  },
+
+  filterRow: {
+    display: "flex",
+    gap: "12px",
+    alignItems: "center",
+    marginBottom: "15px",
+    flexWrap: "nowrap",
+  },
+
+  fullWidthFilter: {
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: "20px",
+  },
+
+  fullWidthDropdown: {
+    padding: "10px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    width: "100%",
+  },
+
+  pagination: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "70px",
+    padding: "10px",
+    fontSize: "14px",
   },
 
   table: {
     background: "#fff",
     borderRadius: "8px",
     border: "1px solid #ddd",
-    overflow: "hidden",
+    overflowX: "auto",
   },
 
   headerRow: {
     display: "grid",
-    gridTemplateColumns: "1.5fr 1.2fr 1fr 1fr 2fr 1fr 1.5fr",
+    gridTemplateColumns: "150px 130px 140px 120px 200px 140px 200px",
     padding: "14px 12px",
     fontWeight: "600",
     borderBottom: "2px solid #e0e0e0",
     background: "#fafafa",
     fontSize: "16px",
     color: "#555",
+    alignItems: "center",
   },
 
   cell: {
     paddingRight: "10px",
+    whiteSpace: "nowrap",
   },
 
   topHeader: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: "column",
+    gap: "15px",
     marginBottom: "15px",
+  },
+
+  rightFilters: {
+    display: "flex",
+    gap: "10px",
+  },
+
+  secondFilterRow: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "flex-end",
   },
 
   filterContainer: {
@@ -398,27 +471,29 @@ const styles = {
   },
 
   dateInput: {
-    padding: "8px",
+    padding: "6px 8px",
     borderRadius: "6px",
     border: "1px solid #ccc",
-    minWidth: "140px",
+    width: "90px",
   },
 
   dropdown: {
-    padding: "8px",
+    padding: "6px 8px",
     borderRadius: "6px",
     border: "1px solid #ccc",
-    minWidth: "160px",
+    width: "150px", // 🔥 reduced
   },
 
   row: {
     display: "grid",
-    gridTemplateColumns: "1.5fr 1.2fr 1fr 1fr 2fr 1fr 1.5fr",
+    gridTemplateColumns: "140px 120px 110px 110px 200px 120px 120px",
     padding: "14px 12px",
     borderBottom: "1px solid #eee",
     alignItems: "center",
     fontSize: "14.8px",
     transition: "0.2s",
+    gap: "10px",
+    whiteSpace: "nowrap",
   },
 
   statusBadge: {

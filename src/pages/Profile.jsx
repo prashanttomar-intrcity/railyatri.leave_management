@@ -5,6 +5,13 @@ import React, { useEffect, useState } from "react";
 // =====================================================
 
 export default function Profile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [editMode, setEditMode] = useState(false);
 
   const [user, setUser] = useState({
@@ -191,18 +198,24 @@ const styles = {
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center", // 🔥 vertical alignment fix
     marginBottom: "20px",
   },
 
   title: { fontSize: "22px", fontWeight: 600 },
-  subtitle: { fontSize: "12px", color: "#777" },
+  subtitle: { fontSize: "12px", color: "#777", whiteSpace: "nowrap" },
 
   editBtn: {
     background: "#000",
     color: "#fff",
-    padding: "8px 15px",
+    padding: "6px 12px",
+    fontSize: "13px",
+    borderRadius: "6px",
     border: "none",
     cursor: "pointer",
+    width: "auto",
+    whiteSpace: "nowrap",
+    alignSelf: "flex-start",
   },
 
   actionRow: { display: "flex", gap: "10px" },
@@ -221,22 +234,24 @@ const styles = {
   },
 
   grid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 2fr",
+    display: "flex",
+    flexDirection: "column",
     gap: "20px",
     marginBottom: "20px",
   },
 
   card: {
     background: "#fff",
-    padding: "20px",
+    padding: "18px",
     borderRadius: "8px",
+    maxWidth: "500px",
   },
 
   profileTop: {
     display: "flex",
     gap: "15px",
     alignItems: "center",
+    minHeight: "auto",
   },
 
   avatar: {

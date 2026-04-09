@@ -15,6 +15,14 @@ export default function ApplyLeaveForm() {
     files: [],
   });
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
 
@@ -179,7 +187,12 @@ export default function ApplyLeaveForm() {
 
       {/* SECTION 1 */}
       <div style={styles.card}>
-        <div style={styles.grid}>
+        <div
+          style={{
+            ...styles.grid,
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          }}
+        >
           <Field label="Leave Type" required error={errors.type}>
             <select
               name="type"
@@ -408,7 +421,6 @@ const styles = {
 
   grid: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr 1fr",
     gap: "15px",
   },
 
@@ -432,11 +444,12 @@ const styles = {
   },
 
   textareaFull: {
-    width: "100%",
+    width: "92%",
     minHeight: "100px",
     padding: "10px",
     borderRadius: "6px",
     border: "1px solid #ccc",
+    resize: "none",
   },
 
   info: {
@@ -538,6 +551,7 @@ const styles = {
     padding: "10px 20px",
     border: "none",
     borderRadius: "6px",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   cancel: {
@@ -545,6 +559,7 @@ const styles = {
     padding: "10px 20px",
     border: "none",
     borderRadius: "6px",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   success: {

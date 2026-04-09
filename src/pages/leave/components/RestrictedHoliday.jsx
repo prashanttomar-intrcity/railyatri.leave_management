@@ -1,11 +1,18 @@
 // based on your original file :contentReference[oaicite:0]{index=0}
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { applyRestrictedHoliday } from "../../../api/api";
 import ConfirmModal from "../../../components/ConfirmModal";
 import SuccessModal from "../../../components/SuccessModal";
 
 export default function RestrictedHoliday() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [form, setForm] = useState({
     holiday: "",
     remarks: "",
@@ -361,6 +368,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "10px",
+    flexWrap: "wrap",
     position: "relative",
   },
 
@@ -381,6 +389,9 @@ const styles = {
     borderRadius: "6px",
     width: "200px",
     zIndex: 10,
+    right: 0,
+    maxHeight: "150px",
+    overflowY: "auto",
   },
 
   dropdownItem: {
@@ -391,11 +402,12 @@ const styles = {
   userBox: {
     display: "flex",
     alignItems: "center",
+    flex: 1,
     gap: "10px",
     background: "#f1f1f1",
     padding: "10px",
     borderRadius: "6px",
-    minWidth: "250px",
+    minWidth: "0",
   },
 
   avatar: {
@@ -447,6 +459,7 @@ const styles = {
     padding: "10px 20px",
     border: "none",
     borderRadius: "6px",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   cancel: {
@@ -454,6 +467,7 @@ const styles = {
     padding: "10px 20px",
     border: "none",
     borderRadius: "6px",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   success: {

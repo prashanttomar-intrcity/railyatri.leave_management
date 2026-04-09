@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 const SIDEBAR_WIDTH = 250;
 const NAVBAR_HEIGHT = 60;
 
-export default function Navbar() {
+export default function Navbar({ setIsOpen, isMobile }) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef();
   const navigate = useNavigate();
@@ -44,17 +44,25 @@ export default function Navbar() {
   };
 
   return (
-    <div style={styles.navbar}>
+    <div
+      style={{
+        ...styles.navbar,
+        left: isMobile ? 0 : SIDEBAR_WIDTH,
+        width: isMobile ? "100%" : `calc(100% - ${SIDEBAR_WIDTH}px)`,
+        right: 0,
+      }}
+    >
       {/* LEFT */}
       <div style={styles.leftSection}>
-        {/* <div style={styles.pageTitle}>Leave Management</div> */}
+        {isMobile && (
+          <button onClick={() => setIsOpen(true)} style={styles.menuBtn}>
+            ☰
+          </button>
+        )}
       </div>
 
       {/* RIGHT */}
       <div style={styles.rightSection} ref={dropdownRef}>
-        {/* NOTIFICATION */}
-        <div style={styles.iconBtn}>🔔</div>
-
         {/* AVATAR */}
         <div style={styles.avatar} onClick={() => setOpen(!open)}>
           {user.name
@@ -71,7 +79,13 @@ export default function Navbar() {
 
         {/* DROPDOWN */}
         {open && (
-          <div style={styles.dropdown}>
+          <div
+            style={{
+              ...styles.dropdown,
+              right: isMobile ? "10px" : 0,
+              width: isMobile ? "220px" : "260px",
+            }}
+          >
             {/* USER */}
             <div style={styles.userBox}>
               <div style={styles.avatarLarge}>
@@ -130,14 +144,12 @@ const styles = {
   navbar: {
     position: "fixed",
     top: 0,
-    left: SIDEBAR_WIDTH,
-    width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
     height: NAVBAR_HEIGHT,
-    background: "#1f2933",
+    background: "#1f4494",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "0 25px",
+    padding: "0 15px",
     boxSizing: "border-box",
     borderBottom: "1px solid #3a3f45",
     zIndex: 1000,
@@ -151,11 +163,20 @@ const styles = {
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "13px",
+    whiteSpace: "nowrap",
   },
 
   leftSection: {
     display: "flex",
     alignItems: "center",
+  },
+
+  menuBtn: {
+    fontSize: "22px",
+    background: "none",
+    border: "none",
+    color: "#fff",
+    cursor: "pointer",
   },
 
   pageTitle: {
@@ -168,6 +189,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "18px",
+    flexShrink: 0,
     position: "relative",
   },
 
@@ -201,6 +223,7 @@ const styles = {
     right: 0,
     top: "55px",
     width: "260px",
+    maxWidth: "90vw",
     background: "#fff",
     borderRadius: "10px",
     boxShadow: "0 10px 30px rgba(0,0,0,0.2)",

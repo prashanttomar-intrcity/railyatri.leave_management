@@ -5,6 +5,13 @@ import { updateLeaveStatus, getLeaves } from "../../../api/api";
 // ==============================================
 
 export default function LeaveCancel() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [leaves, setLeaves] = useState([]);
   const [selected, setSelected] = useState(null);
   const [reason, setReason] = useState("");
@@ -215,11 +222,11 @@ const styles = {
   },
 
   textarea: {
-    width: "100%",
-    padding: "10px",
+    width: "90%",
+    padding: "12px",
     borderRadius: "6px",
     border: "1px solid #ccc",
-    minHeight: "80px",
+    minHeight: "100px",
   },
 
   actions: {
@@ -235,6 +242,7 @@ const styles = {
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   cancel: {
@@ -243,6 +251,7 @@ const styles = {
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   success: {

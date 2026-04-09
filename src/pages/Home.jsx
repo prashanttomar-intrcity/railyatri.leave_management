@@ -188,10 +188,6 @@ export default function Home() {
           >
             Apply Leave
           </button>
-
-          <button style={styles.ghostBtn} onClick={fetchLeaves}>
-            Refresh
-          </button>
         </div>
       </div>
 
@@ -341,7 +337,12 @@ export default function Home() {
 
 function KpiCard({ label, value }) {
   return (
-    <div style={styles.kpiCard}>
+    <div
+      style={{
+        ...styles.kpiCard,
+        width: window.innerWidth < 768 ? "48%" : "auto",
+      }}
+    >
       <div style={styles.kpiLabel}>{label}</div>
       <div style={styles.kpiValue}>{value}</div>
     </div>
@@ -362,8 +363,8 @@ function ActionCard({ title, onClick }) {
 
 const styles = {
   page: {
-    padding: "20px",
-    marginLeft: "13px",
+    padding: "15px",
+    marginLeft: "0px",
     marginTop: "0px",
     background: "#f5f6f8",
     minHeight: "100vh",
@@ -373,6 +374,7 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     marginBottom: "20px",
+    flexWrap: "wrap",
   },
 
   statusBadge: {
@@ -395,6 +397,8 @@ const styles = {
     padding: "8px 15px",
     border: "none",
     cursor: "pointer",
+    borderRadius: "6px",
+    width: window.innerWidth < 768 ? "100%" : "auto",
   },
 
   ghostBtn: {
@@ -403,7 +407,12 @@ const styles = {
     border: "none",
   },
 
-  grid2: { display: "flex", gap: "20px", marginBottom: "20px" },
+  grid2: {
+    display: "flex",
+    gap: "20px",
+    flexDirection: "column",
+    marginBottom: "20px",
+  },
 
   profileRow: { display: "flex", gap: "15px" },
 
@@ -441,9 +450,11 @@ const styles = {
 
   kpiRow: {
     display: "flex",
+    flexWrap: "wrap",
     gridTemplateColumns: "repeat(3, 1fr)",
     gap: "10px",
     flex: 1,
+    justifyContent: "space-between",
   },
 
   kpiCard: {
@@ -465,17 +476,20 @@ const styles = {
 
   cardTitle: { fontWeight: 600, marginBottom: "10px" },
 
-  actionsRow: { display: "flex", gap: "10px" },
+  actionsRow: { display: "flex", flexWrap: "wrap", gap: "10px" },
 
   actionCard: {
     padding: "10px 15px",
     background: "#eee",
     cursor: "pointer",
     borderRadius: "6px",
+    width: window.innerWidth < 768 ? "20%" : "auto",
+    textAlign: "center",
   },
 
   gridMain: {
     display: "flex",
+    flexDirection: window.innerWidth < 768 ? "column" : "row",
     gap: "20px",
   },
 
@@ -498,7 +512,7 @@ const styles = {
     marginBottom: "10px",
   },
 
-  filters: { display: "flex", gap: "10px" },
+  filters: { display: "flex", gap: "10px", flexWrap: "wrap" },
 
   input: {
     padding: "6px",
