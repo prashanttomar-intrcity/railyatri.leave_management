@@ -40,13 +40,6 @@ export const getLeaves = async () => {
   return res.json();
 };
 
-export const applyRestrictedHoliday = (data) =>
-  fetch(`${BASE_URL}/leave_requests`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  }).then((res) => res.json());
-
 export const applyCompOff = (data) =>
   fetch(`${BASE_URL}/leave_requests`, {
     method: "POST",

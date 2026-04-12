@@ -1,8 +1,6 @@
 import { useState } from "react";
 import ApplyLeaveForm from "./components/ApplyLeaveForm";
 import CompOffGrant from "./components/CompOffGrant";
-import LeaveCancel from "./components/LeaveCancel";
-import RestrictedHoliday from "./components/RestrictedHoliday";
 import PendingTab from "./components/PendingTab";
 import HistoryTab from "./components/HistoryTab";
 
@@ -21,10 +19,6 @@ export default function LeaveApply() {
     switch (leaveType) {
       case "leave":
         return <ApplyLeaveForm />;
-      case "rh":
-        return <RestrictedHoliday />;
-      case "cancel":
-        return <LeaveCancel />;
       case "comp":
         return <CompOffGrant />;
       default:
@@ -61,8 +55,6 @@ export default function LeaveApply() {
           <div style={styles.typeTabs}>
             {[
               { key: "leave", label: "Leave" },
-              { key: "rh", label: "Restricted Holiday" },
-              { key: "cancel", label: "Cancel Leave" },
               { key: "comp", label: "Comp Off Grant" },
             ].map((item) => (
               <div

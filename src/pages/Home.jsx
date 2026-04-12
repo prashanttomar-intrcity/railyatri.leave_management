@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getLeaves } from "../api/api";
+import { getLeaves, getAllLeaves } from "../api/api";
 
 const API_BASE = "http://localhost:3000";
 
@@ -35,8 +35,10 @@ export default function Home() {
   const isManager = user.role === "manager";
 
   useEffect(() => {
-    fetchLeaves();
-  }, []);
+    if (user.role) {
+      fetchLeaves();
+    }
+  }, [user.role]);
 
   // ================= HOLIDAY DATA =================
   const holidayData = {
@@ -86,7 +88,19 @@ export default function Home() {
     setError(null);
 
     try {
-      const res = await getLeaves(); // SAME AS TABS
+      let res;
+
+      if (isManager) {
+        const allLeaves = await getAllLeaves();
+
+        const currentUser = JSON.parse(localStorage.getItem("user"));
+
+        // ❗ REMOVE manager's own leaves
+        res = allLeaves.filter((l) => l.user_id !== currentUser.id);
+      } else {
+        res = await getLeaves();
+      }
+
       setLeaves(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error(err);
@@ -122,7 +136,6 @@ export default function Home() {
       planned: count("Planned Leave"),
       unplanned: count("Unplanned Leave"),
       sick: count("Sick Leave"),
-      restricted: count("Restricted Holiday"),
     };
   }, [leaves]);
 
@@ -182,12 +195,14 @@ export default function Home() {
         </div>
 
         <div style={styles.headerActions}>
-          <button
-            style={styles.primaryBtn}
-            onClick={() => handleNavigate("/leave/apply")}
-          >
-            Apply Leave
-          </button>
+          {!isManager && (
+            <button
+              style={styles.primaryBtn}
+              onClick={() => handleNavigate("/leave/apply")}
+            >
+              Apply Leave
+            </button>
+          )}
         </div>
       </div>
 
@@ -217,36 +232,36 @@ export default function Home() {
           <KpiCard label="Planned Leave" value={summary.planned} />
           <KpiCard label="Unplanned Leave" value={summary.unplanned} />
           <KpiCard label="Sick Leave" value={summary.sick} />
-          <KpiCard label="Restricted Holiday" value={summary.restricted} />
         </div>
       </div>
+      {!isManager && (
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>Quick Actions</div>
+          <div style={styles.actionsRow}>
+            <ActionCard
+              title="Apply Leave"
+              onClick={() => handleNavigate("/leave/apply")}
+            />
+            <ActionCard
+              title="Leave Details"
+              onClick={() => handleNavigate("/leave/balance")}
+            />
+            <ActionCard
+              title="Leave Calendar"
+              onClick={() => handleNavigate("/leave/calendar")}
+            />
+            <ActionCard
+              title="Pending Leaves"
+              onClick={() => handleNavigate("/leave/pending-tab")}
+            />
 
-      <div style={styles.card}>
-        <div style={styles.cardTitle}>Quick Actions</div>
-        <div style={styles.actionsRow}>
-          <ActionCard
-            title="Apply Leave"
-            onClick={() => handleNavigate("/leave/apply")}
-          />
-          <ActionCard
-            title="Leave Details"
-            onClick={() => handleNavigate("/leave/balance")}
-          />
-          <ActionCard
-            title="Leave Calendar"
-            onClick={() => handleNavigate("/leave/calendar")}
-          />
-          <ActionCard
-            title="Pending Leaves"
-            onClick={() => handleNavigate("/leave/pending-tab")}
-          />
-
-          <ActionCard
-            title="Leave History"
-            onClick={() => handleNavigate("/leave/history-tab")}
-          />
+            <ActionCard
+              title="Leave History"
+              onClick={() => handleNavigate("/leave/history-tab")}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <div style={styles.gridMain}>
         <div style={{ ...styles.card, ...styles.leftSection }}>
@@ -298,37 +313,31 @@ export default function Home() {
               </thead>
 
               <tbody>
-                {filteredLeaves.map((l) => (
-                  <tr key={l.id} style={styles.tableRow}>
-                    <td style={styles.td}>{l.leave_type}</td>
-                    <td style={styles.td}>{l.from_date}</td>
-                    <td style={styles.td}>{l.to_date}</td>
-                    <td style={styles.td}>{l.reason}</td>
-                    <td>
-                      <span
-                        style={{
-                          ...styles.statusBadge,
-                          ...getStatusBadge(l.status),
-                        }}
-                      >
-                        {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {[...filteredLeaves]
+                  .sort(
+                    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+                  )
+                  .map((l) => (
+                    <tr key={l.id} style={styles.tableRow}>
+                      <td style={styles.td}>{l.leave_type}</td>
+                      <td style={styles.td}>{l.from_date}</td>
+                      <td style={styles.td}>{l.to_date}</td>
+                      <td style={styles.td}>{l.reason}</td>
+                      <td>
+                        <span
+                          style={{
+                            ...styles.statusBadge,
+                            ...getStatusBadge(l.status),
+                          }}
+                        >
+                          {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
-        </div>
-
-        <div style={{ ...styles.card, ...styles.rightSection }}>
-          <div style={styles.cardTitle}>Upcoming Holidays</div>
-          {holidays.map((h, i) => (
-            <div key={i} style={styles.holidayItem}>
-              <div style={styles.holidayName}>{h.name}</div>
-              <div style={styles.holidayDate}>{h.date}</div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
@@ -462,6 +471,7 @@ const styles = {
     background: "#fff",
     padding: "15px",
     borderRadius: "8px",
+    marginBottom: "18px",
   },
 
   kpiLabel: { fontSize: "12px", color: "#777" },

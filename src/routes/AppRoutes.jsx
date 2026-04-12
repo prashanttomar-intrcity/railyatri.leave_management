@@ -38,9 +38,11 @@ export default function AppRoutes() {
       <Route
         path="/leave/apply"
         element={
-          <LayoutWrapper>
-            <LeaveApply />
-          </LayoutWrapper>
+          <ProtectedRoute>
+            <LayoutWrapper>
+              <LeaveApply />
+            </LayoutWrapper>
+          </ProtectedRoute>
         }
       />
       <Route

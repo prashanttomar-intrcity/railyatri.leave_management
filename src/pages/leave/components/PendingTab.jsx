@@ -89,11 +89,11 @@ export default function PendingTab() {
           style={styles.input}
         >
           <option>All</option>
+          <option>Loss of Pay</option>
           <option>Sick Leave</option>
           <option>Planned Leave</option>
           <option>Unplanned Leave</option>
           <option>Comp Off</option>
-          <option>Restricted Holiday</option>
         </select>
       </div>
 

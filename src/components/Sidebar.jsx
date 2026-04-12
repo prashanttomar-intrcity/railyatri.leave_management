@@ -14,6 +14,8 @@ export default function Sidebar({ isOpen, setIsOpen, isMobile }) {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const isManager = user?.role === "manager";
+
   const [openMenu, setOpenMenu] = useState({
     leave: true,
   });
@@ -58,57 +60,62 @@ export default function Sidebar({ isOpen, setIsOpen, isMobile }) {
           onClick={() => navigate("/home")}
         />
 
-        {/* LEAVE */}
-        <div>
+        {/* REVIEW LEAVE ONLY FOR MANAGER */}
+        {isManager && (
           <MenuItem
             icon={<EventNoteOutlinedIcon style={styles.icon} />}
-            label="Leave"
-            active={isParentActive([
-              "/leave/apply",
-              "/leave/balance",
-              "/leave/calendar",
-              "/leave/holiday",
-            ])}
-            onClick={() => toggleMenu("leave")}
-            arrow={openMenu.leave}
+            label="Review Leave"
+            active={isActive("/manager/review")}
+            onClick={() => navigate("/manager/review")}
           />
+        )}
 
-          <div
-            style={{
-              ...styles.subMenu,
-              maxHeight: openMenu.leave ? "500px" : "0px",
-            }}
-          >
-            <SubItem
-              label="Apply Leave"
-              active={isActive("/leave/apply")}
-              onClick={() => {
-                navigate("/leave/apply");
-                if (isMobile) setIsOpen(false);
+        {/* LEAVE */}
+        {/* LEAVE MENU ONLY FOR NORMAL USERS */}
+        {!isManager && (
+          <div>
+            <MenuItem
+              icon={<EventNoteOutlinedIcon style={styles.icon} />}
+              label="Leave"
+              active={isParentActive([
+                "/leave/apply",
+                "/leave/balance",
+                "/leave/calendar",
+                "/leave/holiday",
+              ])}
+              onClick={() => toggleMenu("leave")}
+              arrow={openMenu.leave}
+            />
+
+            <div
+              style={{
+                ...styles.subMenu,
+                maxHeight: openMenu.leave ? "500px" : "0px",
               }}
-            />
-
-            <SubItem
-              label="Leave Details"
-              active={isActive("/leave/balance")}
-              onClick={() => navigate("/leave/balance")}
-            />
-
-            <SubItem
-              label="Leave Calendar"
-              active={isActive("/leave/calendar")}
-              onClick={() => navigate("/leave/calendar")}
-            />
-
-            {user?.role === "manager" && (
+            >
               <SubItem
-                label="Review Leave"
-                active={isActive("/manager/review")}
-                onClick={() => navigate("/manager/review")}
+                label="Apply Leave"
+                active={isActive("/leave/apply")}
+                onClick={() => {
+                  navigate("/leave/apply");
+                  if (isMobile) setIsOpen(false);
+                }}
               />
-            )}
+
+              <SubItem
+                label="Leave Details"
+                active={isActive("/leave/balance")}
+                onClick={() => navigate("/leave/balance")}
+              />
+
+              <SubItem
+                label="Leave Calendar"
+                active={isActive("/leave/calendar")}
+                onClick={() => navigate("/leave/calendar")}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* FOOTER */}

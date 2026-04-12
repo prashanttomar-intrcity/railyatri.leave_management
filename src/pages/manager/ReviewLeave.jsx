@@ -119,8 +119,6 @@ export default function ReviewLeave() {
               <option value="Planned Leave">Planned Leave</option>
               <option value="Unplanned Leave">Unplanned Leave</option>
               <option value="Sick Leave">Sick Leave</option>
-              <option value="OD">OD</option>
-              <option value="Restricted Holiday">Restricted Holiday</option>
             </select>
           </div>
         </div>

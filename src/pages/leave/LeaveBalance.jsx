@@ -39,8 +39,6 @@ export default function LeaveBalance() {
           { name: "Planned Leaves", granted: 0, balance: 5 },
           { name: "Unplanned Leaves", granted: 0, balance: 5 },
           { name: "Sick Leaves", granted: 0, balance: 5 },
-          { name: "OD", granted: 0, balance: 5 },
-          { name: "Restricted Holiday", granted: 0, balance: 5 },
         ]);
         return;
       }
@@ -51,8 +49,6 @@ export default function LeaveBalance() {
         "Planned Leaves",
         "Unplanned Leaves",
         "Sick Leaves",
-        "OD",
-        "Restricted Holiday",
       ];
 
       const result = leaveTypes.map((type) => {

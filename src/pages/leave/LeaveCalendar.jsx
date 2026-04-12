@@ -94,10 +94,7 @@ export default function LeaveCalendar() {
 
   // ================= MOCK DATA =================
 
-  const holidays = {
-    20: "general",
-    21: "restricted",
-  };
+  const holidays = {};
 
   // ================= UI =================
 
@@ -106,33 +103,10 @@ export default function LeaveCalendar() {
       {/* HEADER */}
       <div style={styles.header}>
         <h2 style={styles.title}>Leave Calendar</h2>
-
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          style={styles.input}
-        >
-          <option>Me</option>
-          <option>Team</option>
-          <option>All</option>
-        </select>
       </div>
 
       {/* MAIN GRID */}
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {/* LEAVE TRANSACTIONS FULL WIDTH */}
-        <div style={styles.transactionsCard}>
-          <div style={styles.transactionsHeader}>Leave Transactions (0)</div>
-
-          <div style={styles.tableHeader}>
-            <span>Employee</span>
-            <span>Days</span>
-            <span>From-To</span>
-          </div>
-
-          <div style={styles.emptyState}>No Employees are on leave</div>
-        </div>
-
         {/* CALENDAR */}
         <div style={styles.calendarCard}>
           <div style={styles.calendarHeader}>
@@ -170,13 +144,6 @@ export default function LeaveCalendar() {
           </div>
 
           {/* LEGEND */}
-          <div style={styles.legend}>
-            <span>Team on Leave 0</span>
-            <span style={styles.legendDotYellow}></span>
-            <span>Restricted Holiday</span>
-            <span style={styles.legendDotPurple}></span>
-            <span>General Holiday</span>
-          </div>
         </div>
       </div>
     </div>
@@ -206,10 +173,6 @@ function DayCell({ day, holiday, currentMonth, leaveDates }) {
       }}
     >
       <div style={styles.dayNumber}>{day}</div>
-
-      {holiday === "general" && <div style={styles.generalDot}></div>}
-
-      {holiday === "restricted" && <div style={styles.restrictedDot}></div>}
     </div>
   );
 }
@@ -320,26 +283,6 @@ const styles = {
 
   dayNumber: {
     fontSize: "12px",
-  },
-
-  generalDot: {
-    width: "8px",
-    height: "8px",
-    background: "purple",
-    borderRadius: "50%",
-    position: "absolute",
-    bottom: "5px",
-    right: "5px",
-  },
-
-  restrictedDot: {
-    width: "8px",
-    height: "8px",
-    background: "gold",
-    borderRadius: "50%",
-    position: "absolute",
-    bottom: "5px",
-    right: "15px",
   },
 
   legend: {

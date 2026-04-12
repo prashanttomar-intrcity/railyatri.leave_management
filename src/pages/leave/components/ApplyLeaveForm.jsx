@@ -41,7 +41,6 @@ export default function ApplyLeaveForm() {
     "Planned Leave",
     "Unplanned Leave",
     "Sick Leave",
-    "OD",
   ];
 
   const users = [
