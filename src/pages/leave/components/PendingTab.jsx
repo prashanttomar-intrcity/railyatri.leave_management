@@ -20,6 +20,7 @@ export default function PendingTab() {
   const [selectedId, setSelectedId] = useState(null);
 
   const [successOpen, setSuccessOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   // ================= FETCH FROM BACKEND =================
   useEffect(() => {
@@ -62,7 +63,18 @@ export default function PendingTab() {
   }, [data, filters]);
 
   // ================= WITHDRAW =================
+  const canWithdraw = () => {
+    const today = new Date();
+    return today.getDate() <= 26;
+  };
+
   const handleWithdraw = (id) => {
+    if (!canWithdraw()) {
+      setErrorMsg("Cannot be withdrawn after 26th of this month");
+      return;
+    }
+
+    setErrorMsg(""); // clear old error
     setSelectedId(id);
     setConfirmOpen(true);
   };
@@ -73,6 +85,7 @@ export default function PendingTab() {
       <div style={styles.headerRow}>
         <div style={styles.title}>Pending Leave Requests</div>
       </div>
+      {errorMsg && <div style={styles.errorText}>{errorMsg}</div>}
 
       {/* FILTERS */}
       <div style={styles.filterRow}>
@@ -179,6 +192,13 @@ const styles = {
     border: "1px solid #ccc",
     borderRadius: "6px",
   },
+
+  errorText: {
+    color: "red",
+    marginBottom: "10px",
+    fontSize: "13px",
+  },
+
   card: {
     background: "#fff",
     border: "1px solid #ddd",
