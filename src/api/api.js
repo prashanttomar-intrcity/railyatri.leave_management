@@ -17,12 +17,23 @@ export const login = (data) =>
 export const applyLeave = async (data) => {
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // ✅ IF FormData → DO NOT SET HEADERS
+  if (data instanceof FormData) {
+    data.append("user_id", user.id);
+
+    return fetch(`${BASE_URL}/leave_requests`, {
+      method: "POST",
+      body: data,
+    }).then((res) => res.json());
+  }
+
+  // ✅ NORMAL JSON FLOW (unchanged behavior)
   return fetch(`${BASE_URL}/leave_requests`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       ...data,
-      user_id: user.id, // ✅ FORCE
+      user_id: user.id,
     }),
   }).then((res) => res.json());
 };

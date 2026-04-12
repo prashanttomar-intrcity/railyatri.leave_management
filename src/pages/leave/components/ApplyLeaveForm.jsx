@@ -131,21 +131,24 @@ export default function ApplyLeaveForm() {
       return;
     }
 
-    const data = {
-      user_id: user.id,
-      leave_type: form.type,
-      from_date: form.fromDate,
-      to_date: form.toDate,
-      days: leaveDays,
-      reason: form.reason,
-      applying_to: form.applyingTo,
-      contact: form.contact,
-      status: "pending",
-    };
+    const formData = new FormData();
 
-    console.log("FINAL DATA SENT:", data);
+    formData.append("user_id", user.id);
+    formData.append("leave_type", form.type);
+    formData.append("from_date", form.fromDate);
+    formData.append("to_date", form.toDate);
+    formData.append("days", leaveDays);
+    formData.append("reason", form.reason);
+    formData.append("applying_to", form.applyingTo);
+    formData.append("contact", form.contact);
+    formData.append("status", "pending");
 
-    const res = await applyLeave(data);
+    // ✅ ADD FILE (IMPORTANT)
+    if (isSickLeave && form.files.length > 0) {
+      formData.append("medical_file", form.files[0]);
+    }
+
+    const res = await applyLeave(formData);
 
     console.log("RESPONSE:", res);
 
