@@ -27,8 +27,11 @@ end
     applying_to: data[:applying_to],
     contact: data[:contact]
   )
+if leave.save
 
-  if leave.save
+  if params[:medical_file].present?
+    leave.medical_file.attach(params[:medical_file])
+  end
   LeaveMailer.new_leave_request(leave).deliver_now
 
   render json: leave, status: :created
@@ -68,7 +71,8 @@ end
     :reason,
     :status,
     :applying_to,
-    :contact
+    :contact,
+    :medical_file
   )
 end
 end
