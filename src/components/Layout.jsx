@@ -27,8 +27,7 @@ export default function Layout({ children }) {
         style={{
           ...styles.content,
           marginLeft: isMobile ? "0" : "250px",
-          width: "100%",
-          maxWidth: "100%",
+          width: isMobile ? "100%" : "calc(100% - 250px)",
           boxSizing: "border-box",
         }}
       >
@@ -47,8 +46,6 @@ const styles = {
     transition: "0.3s",
     width: "100%",
     overflowX: "hidden",
-    maxWidth: "1200px",
-    margin: "60px auto 0 auto",
   },
 
   overlay: {

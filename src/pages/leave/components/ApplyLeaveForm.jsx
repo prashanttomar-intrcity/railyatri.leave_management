@@ -37,7 +37,7 @@ export default function ApplyLeaveForm() {
 
   const leaveTypes = [
     "Loss Of Pay",
-    "Comp - Off",
+    "Comp Off",
     "Planned Leave",
     "Unplanned Leave",
     "Sick Leave",

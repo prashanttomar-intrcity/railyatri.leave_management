@@ -32,6 +32,17 @@ export default function Home() {
     });
   }, []);
 
+  const [selectedCard, setSelectedCard] = useState(null);
+
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  const [dateRange, setDateRange] = useState({
+    from: firstDay.toISOString().split("T")[0],
+    to: lastDay.toISOString().split("T")[0],
+  });
+
   const isManager = user.role === "manager";
 
   useEffect(() => {
@@ -128,7 +139,16 @@ export default function Home() {
 
   // 🔥 REAL KPI CALCULATION
   const summary = useMemo(() => {
-    const count = (type) => leaves.filter((l) => l.leave_type === type).length;
+    const from = new Date(dateRange.from);
+    const to = new Date(dateRange.to);
+
+    const filtered = leaves.filter((l) => {
+      const leaveDate = new Date(l.from_date);
+      return leaveDate >= from && leaveDate <= to;
+    });
+
+    const count = (type) =>
+      filtered.filter((l) => l.leave_type === type).length;
 
     return {
       lop: count("Loss Of Pay"),
@@ -137,7 +157,7 @@ export default function Home() {
       unplanned: count("Unplanned Leave"),
       sick: count("Sick Leave"),
     };
-  }, [leaves]);
+  }, [leaves, dateRange]);
 
   const handleNavigate = (path) => navigate(path);
 
@@ -227,13 +247,82 @@ export default function Home() {
         </div>
 
         <div style={styles.kpiRow}>
-          <KpiCard label="Loss Of Pay" value={summary.lop} />
-          <KpiCard label="Comp Off" value={summary.comp} />
-          <KpiCard label="Planned Leave" value={summary.planned} />
-          <KpiCard label="Unplanned Leave" value={summary.unplanned} />
-          <KpiCard label="Sick Leave" value={summary.sick} />
+          <KpiCard
+            label="Loss Of Pay"
+            value={summary.lop}
+            onClick={() => setSelectedCard("Loss Of Pay")}
+          />
+          <KpiCard
+            label="Comp Off"
+            value={summary.comp}
+            onClick={() => setSelectedCard("Comp Off")}
+          />
+          <KpiCard
+            label="Planned Leave"
+            value={summary.planned}
+            onClick={() => setSelectedCard("Planned Leave")}
+          />
+          <KpiCard
+            label="Unplanned Leave"
+            value={summary.unplanned}
+            onClick={() => setSelectedCard("Unplanned Leave")}
+          />
+          <KpiCard
+            label="Sick Leave"
+            value={summary.sick}
+            onClick={() => setSelectedCard("Sick Leave")}
+          />
         </div>
+        {selectedCard && (
+          <div style={styles.expandCard}>
+            <div style={styles.expandHeader}>
+              <div style={styles.cardTitle}>{selectedCard} Details</div>
+            </div>
+
+            <div style={styles.dateRow}>
+              <div>
+                <label>From</label>
+                <input
+                  type="date"
+                  value={dateRange.from}
+                  onChange={(e) =>
+                    setDateRange({ ...dateRange, from: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <label>To</label>
+                <input
+                  type="date"
+                  value={dateRange.to}
+                  onChange={(e) =>
+                    setDateRange({ ...dateRange, to: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <div style={styles.expandCount}>
+              Count:{" "}
+              {
+                summary[
+                  selectedCard === "Loss Of Pay"
+                    ? "lop"
+                    : selectedCard === "Comp Off"
+                      ? "comp"
+                      : selectedCard === "Planned Leave"
+                        ? "planned"
+                        : selectedCard === "Unplanned Leave"
+                          ? "unplanned"
+                          : "sick"
+                ]
+              }
+            </div>
+          </div>
+        )}
       </div>
+
       {!isManager && (
         <div style={styles.card}>
           <div style={styles.cardTitle}>Quick Actions</div>
@@ -344,16 +433,27 @@ export default function Home() {
   );
 }
 
-function KpiCard({ label, value }) {
+function KpiCard({ label, value, onClick }) {
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
   return (
     <div
+      onClick={onClick}
       style={{
         ...styles.kpiCard,
+        cursor: "pointer",
         width: window.innerWidth < 768 ? "48%" : "auto",
       }}
     >
       <div style={styles.kpiLabel}>{label}</div>
       <div style={styles.kpiValue}>{value}</div>
+
+      {/* ✅ DATE RANGE BELOW COUNT */}
+      <div style={styles.kpiDate}>
+        {firstDay.toLocaleDateString()} - {lastDay.toLocaleDateString()}
+      </div>
     </div>
   );
 }
@@ -408,6 +508,35 @@ const styles = {
     cursor: "pointer",
     borderRadius: "6px",
     width: window.innerWidth < 768 ? "100%" : "auto",
+  },
+
+  kpiDate: {
+    fontSize: "10px",
+    color: "#777",
+    marginTop: "5px",
+  },
+
+  expandCard: {
+    width: "100%",
+    background: "#fff",
+    padding: "15px",
+    borderRadius: "8px",
+    marginTop: "10px",
+  },
+
+  expandHeader: {
+    marginBottom: "10px",
+  },
+
+  dateRow: {
+    display: "flex",
+    gap: "20px",
+    marginBottom: "10px",
+  },
+
+  expandCount: {
+    fontSize: "16px",
+    fontWeight: "600",
   },
 
   ghostBtn: {
