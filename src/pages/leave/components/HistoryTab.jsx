@@ -9,11 +9,18 @@ export default function HistoryTab() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const [filters, setFilters] = useState({
     search: "",
     type: "All",
     status: "All",
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
 
   useEffect(() => {
     fetchLeaves();
@@ -56,6 +63,13 @@ export default function HistoryTab() {
       return matchSearch && matchType && matchStatus;
     });
   }, [data, filters]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(start, start + itemsPerPage);
+  }, [filtered, currentPage]);
 
   return (
     <div style={styles.container}>
@@ -113,7 +127,7 @@ export default function HistoryTab() {
             </thead>
 
             <tbody>
-              {filtered.map((item) => (
+              {paginatedData.map((item) => (
                 <tr key={item.id} style={styles.tr}>
                   <td style={styles.tdLeft}>{item.type}</td>
                   <td style={styles.td}>{item.from}</td>
@@ -129,6 +143,72 @@ export default function HistoryTab() {
             </tbody>
           </table>
         )}
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            style={{
+              width: "32px",
+              height: "32px",
+              minWidth: "32px",
+              marginBottom: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "14px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+              background: "#fff",
+              cursor: "pointer",
+              opacity: currentPage === 1 ? 0.5 : 1,
+            }}
+          >
+            ◀
+          </button>
+
+          <span
+            style={{
+              fontSize: "13px",
+              minWidth: "40px",
+              textAlign: "center",
+              marginBottom: "12px",
+            }}
+          >
+            {currentPage}/{totalPages}
+          </span>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            style={{
+              width: "32px",
+              height: "32px",
+              minWidth: "32px",
+              marginBottom: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "14px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+              background: "#fff",
+              cursor: "pointer",
+              opacity: currentPage === totalPages ? 0.5 : 1,
+            }}
+          >
+            ▶
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLeaves } from "../../api/api";
-
 // =====================================================
 // LEAVE BALANCE PAGE (FULL PROFESSIONAL HR DASHBOARD UI)
 // =====================================================
@@ -16,66 +15,138 @@ export default function LeaveBalance() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    fetchLeaveBalance();
-  }, []);
-
   const [year, setYear] = useState("2026");
 
   const [leaveData, setLeaveData] = useState([]);
+
+  useEffect(() => {
+    if (localStorage.getItem("user")) {
+      fetchLeaveBalance();
+    }
+  }, [year]);
 
   const fetchLeaveBalance = async () => {
     try {
       const data = await getLeaves();
 
+      const user = JSON.parse(localStorage.getItem("user")) || {};
+
+      // 🔥 STEP 2 DEBUG (ADD THESE EXACTLY HERE)
+      console.log("USER ID:", user?.id);
+      console.log(
+        "ALL LEAVE USER IDS:",
+        data.map((l) => l.user_id),
+      );
+
+      // 🔥 SAFETY CHECK (STEP 5 FIX)
+      if (!Array.isArray(data)) {
+        console.error("Invalid API response:", data);
+        setLeaveData([]);
+        return;
+      }
+
+      // join date (fallback = today)
+      const joinDate = user?.created_at
+        ? new Date(user.created_at)
+        : new Date();
+
+      // months worked
+      const today = new Date();
+      const monthsWorked =
+        (today.getFullYear() - joinDate.getFullYear()) * 12 +
+        (today.getMonth() - joinDate.getMonth()) +
+        1;
+
       // Only current user (IMPORTANT)
 
-      const myLeaves = data;
+      const myLeaves = data.filter((leave) => {
+        const leaveYear = new Date(leave.from_date).getFullYear();
 
+        return (
+          Number(leave.user_id) === Number(user?.id) && // 🔥 FIX
+          leaveYear === Number(year)
+        );
+      });
       if (!myLeaves || myLeaves.length === 0) {
         setLeaveData([
-          { name: "Loss Of Pay", granted: 0, balance: 5 },
-          { name: "Comp - Off", granted: 0, balance: 5 },
-          { name: "Planned Leaves", granted: 0, balance: 5 },
-          { name: "Unplanned Leaves", granted: 0, balance: 5 },
-          { name: "Sick Leaves", granted: 0, balance: 5 },
+          { name: "Loss Of Pay", granted: 0, pending: 0, balance: 5 },
+          { name: "Comp Off", granted: 0, pending: 0, balance: 5 },
+          { name: "Planned Leave", granted: 0, pending: 0, balance: 5 },
+          { name: "Unplanned Leave", granted: 0, pending: 0, balance: 5 },
+          { name: "Sick Leave", granted: 0, pending: 0, balance: 5 },
         ]);
         return;
       }
 
       const leaveTypes = [
         "Loss Of Pay",
-        "Comp - Off",
-        "Planned Leaves",
-        "Unplanned Leaves",
-        "Sick Leaves",
+        "Comp Off",
+        "Planned Leave",
+        "Unplanned Leave",
+        "Sick Leave",
       ];
 
       const result = leaveTypes.map((type) => {
-        const normalize = (str) => str?.toLowerCase().replace(/[\s-]/g, "");
+        const normalize = (str) => {
+          if (!str) return "";
 
-        const approvedLeaves = myLeaves.filter(
-          (leave) =>
-            normalize(leave.leave_type) === normalize(type) &&
-            leave.status?.toLowerCase() === "approved",
+          return str
+            .toLowerCase()
+            .replace(/\s+/g, "") // remove ALL spaces
+            .replace(/-/g, "") // remove hyphen
+            .trim();
+        };
+
+        const filtered = myLeaves.filter(
+          (leave) => normalize(leave.leave_type) === normalize(type),
         );
 
-        // count days
-        let approvedDays = 0;
+        let approvedCount = 0;
+        let pendingCount = 0;
 
-        approvedLeaves.forEach((leave) => {
-          const from = new Date(leave.from_date);
-          const to = new Date(leave.to_date);
+        filtered.forEach((leave) => {
+          const diff = Number(leave.days) || 0;
 
-          const diff = (to - from) / (1000 * 60 * 60 * 24) + 1;
+          const status = leave.status?.toLowerCase().trim();
 
-          approvedDays += diff;
+          // 🔥 DEBUG LOG (ADD THIS)
+          console.log("DEBUG LEAVE:", {
+            originalType: leave.leave_type,
+            normalizedType: normalize(leave.leave_type),
+            currentCardType: type,
+            status: status,
+            days: diff,
+          });
+
+          if (status === "approved") {
+            approvedCount += 1;
+          } else if (status === "pending") {
+            pendingCount += 1;
+          }
+
+          // ❌ IGNORE:
+          // rejected
+          // withdrawn
+          // anything else
         });
+
+        // ===== BASE =====
+        let base = 5;
+
+        // ===== MONTHLY ACCRUAL =====
+        if (type === "Planned Leave") {
+          base += monthsWorked * 1; // +1 per month
+        }
+
+        if (type === "Unplanned Leave") {
+          base += monthsWorked * 0.5; // +0.5 per month
+        }
 
         return {
           name: type,
-          granted: approvedDays,
-          balance: Math.max(0, 5 - approvedDays), // total 5 leaves
+          granted: approvedCount,
+          pending: pendingCount,
+          balance: base - (approvedCount + pendingCount),
         };
       });
 
@@ -131,7 +202,10 @@ function LeaveCard({ data }) {
       {/* TOP */}
       <div style={styles.cardHeader}>
         <span style={styles.leaveName}>{data.name}</span>
-        <span style={styles.granted}>Granted: {data.granted}</span>
+        <div>
+          <div style={styles.granted}>Granted: {data.granted}</div>
+          <div style={styles.pending}>Pending: {data.pending}</div>
+        </div>
       </div>
 
       {/* CENTER */}
@@ -235,6 +309,11 @@ const styles = {
   },
 
   granted: {
+    fontSize: "13px",
+    color: "#777",
+  },
+
+  pending: {
     fontSize: "13px",
     color: "#777",
   },

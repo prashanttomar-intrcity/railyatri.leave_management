@@ -48,7 +48,10 @@ export const getLeaves = async () => {
 
   const res = await fetch(`${BASE_URL}/leave_requests?user_id=${user.id}`);
 
-  return res.json();
+  const result = await res.json();
+
+  // 🔥 STEP 3 FIX (ADD THIS)
+  return result.filter((l) => Number(l.user_id) === Number(user.id));
 };
 
 export const applyCompOff = (data) =>

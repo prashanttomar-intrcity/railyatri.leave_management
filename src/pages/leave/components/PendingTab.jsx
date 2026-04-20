@@ -10,11 +10,20 @@ import SuccessModal from "../../../components/SuccessModal";
 export default function PendingTab() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const [btnLoadingId, setBtnLoadingId] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const [filters, setFilters] = useState({
     search: "",
     type: "All",
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
@@ -61,6 +70,13 @@ export default function PendingTab() {
       return matchSearch && matchType;
     });
   }, [data, filters]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(start, start + itemsPerPage);
+  }, [filtered, currentPage]);
 
   // ================= WITHDRAW =================
   const canWithdraw = () => {
@@ -130,7 +146,7 @@ export default function PendingTab() {
             </thead>
 
             <tbody>
-              {filtered.map((item) => (
+              {paginatedData.map((item) => (
                 <tr key={item.id} style={styles.tr}>
                   <td style={styles.tdLeft}>{item.type}</td>
                   <td style={styles.td}>{item.from}</td>
@@ -143,8 +159,13 @@ export default function PendingTab() {
                       <button
                         style={styles.withdrawBtn}
                         onClick={() => handleWithdraw(item.id)}
+                        disabled={btnLoadingId === item.id}
                       >
-                        Withdraw
+                        {btnLoadingId === item.id ? (
+                          <div style={styles.spinner}></div>
+                        ) : (
+                          "Withdraw"
+                        )}
                       </button>
                     </div>
                   </td>
@@ -153,15 +174,89 @@ export default function PendingTab() {
             </tbody>
           </table>
         )}
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            style={{
+              width: "32px",
+              height: "32px",
+              minWidth: "32px",
+              marginBottom: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "14px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+              background: "#fff",
+              cursor: "pointer",
+              opacity: currentPage === 1 ? 0.5 : 1,
+            }}
+          >
+            ◀
+          </button>
+
+          <span
+            style={{
+              fontSize: "13px",
+              minWidth: "40px",
+              textAlign: "center",
+              marginBottom: "12px",
+            }}
+          >
+            {currentPage}/{totalPages}
+          </span>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            style={{
+              width: "32px",
+              height: "32px",
+              minWidth: "32px",
+              marginBottom: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "14px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+              background: "#fff",
+              cursor: "pointer",
+              opacity: currentPage === totalPages ? 0.5 : 1,
+            }}
+          >
+            ▶
+          </button>
+        </div>
       </div>
       <ConfirmModal
         open={confirmOpen}
         title="Withdraw Leave"
         message="Are you sure you want to withdraw this leave application?"
         confirmText="Withdraw"
+        confirmLoading={confirmLoading}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={async () => {
+          setConfirmLoading(true);
+          setBtnLoadingId(selectedId);
+
           await updateLeaveStatus(selectedId, "withdrawn");
+
+          setConfirmLoading(false);
+          setBtnLoadingId(null);
+
           setConfirmOpen(false);
           setSuccessOpen(true);
           fetchLeaves();
@@ -197,6 +292,15 @@ const styles = {
     color: "red",
     marginBottom: "10px",
     fontSize: "13px",
+  },
+
+  spinner: {
+    width: "16px",
+    height: "16px",
+    border: "2px solid #fff",
+    borderTop: "2px solid transparent",
+    borderRadius: "50%",
+    animation: "spin 0.6s linear infinite",
   },
 
   card: {
@@ -235,3 +339,11 @@ const styles = {
   },
   center: { textAlign: "center", fontSize: "14px", padding: "20px" },
 };
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(style);

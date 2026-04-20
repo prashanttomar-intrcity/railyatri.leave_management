@@ -28,6 +28,7 @@ export default function ApplyLeaveForm() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [leaveDays, setLeaveDays] = useState(0);
 
@@ -336,8 +337,12 @@ export default function ApplyLeaveForm() {
       {/* ACTIONS */}
       <div style={styles.card}>
         <div style={styles.actions}>
-          <button style={styles.submit} onClick={() => setConfirmOpen(true)}>
-            {loading ? "Submitting..." : "Submit"}
+          <button
+            style={styles.submit}
+            onClick={() => setConfirmOpen(true)}
+            disabled={loading}
+          >
+            {loading ? <div style={styles.spinner}></div> : "Submit"}
           </button>
           <button style={styles.cancel} onClick={resetForm}>
             Cancel
@@ -353,10 +358,18 @@ export default function ApplyLeaveForm() {
         title="Apply Leave"
         message="Are you sure you want to apply for this leave?"
         confirmText="Submit"
+        confirmLoading={confirmLoading}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={async () => {
+          setConfirmLoading(true);
+          setLoading(true);
+
           const success = await handleSubmit();
+
+          setConfirmLoading(false);
+          setLoading(false);
           setConfirmOpen(false);
+
           if (success) setSuccessOpen(true);
         }}
       />
@@ -487,6 +500,15 @@ const styles = {
     zIndex: 10,
   },
 
+  spinner: {
+    width: "16px",
+    height: "16px",
+    border: "2px solid #fff",
+    borderTop: "2px solid transparent",
+    borderRadius: "50%",
+    animation: "spin 0.6s linear infinite",
+  },
+
   dropdownItem: {
     padding: "8px",
     cursor: "pointer",
@@ -549,7 +571,7 @@ const styles = {
 
   submit: {
     background: "#000",
-    color: "#fff",
+    color: "#ffffff",
     padding: "10px 20px",
     border: "none",
     borderRadius: "6px",
@@ -569,3 +591,11 @@ const styles = {
     color: "green",
   },
 };
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(style);

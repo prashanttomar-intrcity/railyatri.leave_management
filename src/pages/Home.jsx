@@ -12,6 +12,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const leavesPerPage = 10;
+
   const [filters, setFilters] = useState({
     search: "",
     type: "All",
@@ -31,6 +34,10 @@ export default function Home() {
       role: storedUser.role || "employee",
     });
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
 
   const [selectedCard, setSelectedCard] = useState(null);
 
@@ -136,6 +143,19 @@ export default function Home() {
       return matchesType && matchesSearch;
     });
   }, [leaves, filters]);
+
+  const sortedLeaves = useMemo(() => {
+    return [...filteredLeaves].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at),
+    );
+  }, [filteredLeaves]);
+
+  const totalPages = Math.ceil(sortedLeaves.length / leavesPerPage);
+
+  const paginatedLeaves = useMemo(() => {
+    const start = (currentPage - 1) * leavesPerPage;
+    return sortedLeaves.slice(start, start + leavesPerPage);
+  }, [sortedLeaves, currentPage]);
 
   // 🔥 REAL KPI CALCULATION
   const summary = useMemo(() => {
@@ -375,6 +395,7 @@ export default function Home() {
                 }
               >
                 <option>All</option>
+                <option>Loss Of Pay</option>
                 <option>Planned Leave</option>
                 <option>Unplanned Leave</option>
                 <option>Sick Leave</option>
@@ -402,31 +423,88 @@ export default function Home() {
               </thead>
 
               <tbody>
-                {[...filteredLeaves]
-                  .sort(
-                    (a, b) => new Date(b.created_at) - new Date(a.created_at),
-                  )
-                  .map((l) => (
-                    <tr key={l.id} style={styles.tableRow}>
-                      <td style={styles.td}>{l.leave_type}</td>
-                      <td style={styles.td}>{l.from_date}</td>
-                      <td style={styles.td}>{l.to_date}</td>
-                      <td style={styles.td}>{l.reason}</td>
-                      <td>
-                        <span
-                          style={{
-                            ...styles.statusBadge,
-                            ...getStatusBadge(l.status),
-                          }}
-                        >
-                          {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                {paginatedLeaves.map((l) => (
+                  <tr key={l.id} style={styles.tableRow}>
+                    <td style={styles.td}>{l.leave_type}</td>
+                    <td style={styles.td}>{l.from_date}</td>
+                    <td style={styles.td}>{l.to_date}</td>
+                    <td style={styles.td}>{l.reason}</td>
+                    <td>
+                      <span
+                        style={{
+                          ...styles.statusBadge,
+                          ...getStatusBadge(l.status),
+                        }}
+                      >
+                        {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           )}
+          <div
+            style={{
+              marginTop: "10px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              style={{
+                width: "32px",
+                height: "32px",
+                minWidth: "32px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "14px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              ◀
+            </button>
+
+            <span
+              style={{
+                fontSize: "13px",
+                minWidth: "40px",
+                textAlign: "center",
+              }}
+            >
+              {currentPage}/{totalPages}
+            </span>
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              style={{
+                width: "32px",
+                height: "32px",
+                minWidth: "32px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "14px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              ▶
+            </button>
+          </div>
         </div>
       </div>
     </div>

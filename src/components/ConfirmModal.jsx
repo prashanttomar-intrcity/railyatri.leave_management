@@ -7,6 +7,7 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
   confirmText = "Confirm",
+  confirmLoading,
 }) {
   if (!open) return null;
 
@@ -20,8 +21,8 @@ export default function ConfirmModal({
           <button style={styles.cancel} onClick={onCancel}>
             Cancel
           </button>
-          <button style={styles.confirm} onClick={onConfirm}>
-            {confirmText}
+          <button onClick={onConfirm} disabled={confirmLoading}>
+            {confirmLoading ? <div style={styles.spinner}></div> : confirmText}
           </button>
         </div>
       </div>
@@ -50,6 +51,14 @@ const styles = {
     width: "350px",
   },
 
+  spinner: {
+    width: "16px",
+    height: "16px",
+    border: "2px solid #fff",
+    borderTop: "2px solid transparent",
+    borderRadius: "50%",
+    animation: "spin 0.6s linear infinite",
+  },
   actions: {
     marginTop: "15px",
     display: "flex",
@@ -70,3 +79,11 @@ const styles = {
     border: "none",
   },
 };
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(style);
