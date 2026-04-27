@@ -7,7 +7,18 @@ def index
 end
 
 def all_leaves
-  leaves = LeaveRequest.includes(:user).order(created_at: :desc)
+  manager_id = params[:manager_id]
+
+  # Step 1: find users whose manager is current user
+  employees = User.where(manager_id: manager_id).pluck(:id)
+
+  # Step 2: INCLUDE SELF (IMPORTANT FIX)
+  employees << manager_id.to_i
+
+  # Step 2: get their leaves
+  leaves = LeaveRequest.where(user_id: employees)
+                       .includes(:user)
+                       .order(created_at: :desc)
 
   render json: leaves.as_json(include: { user: { only: [:id, :name, :email] } })
 end
@@ -32,7 +43,17 @@ if leave.save
   if params[:medical_file].present?
     leave.medical_file.attach(params[:medical_file])
   end
-  LeaveMailer.new_leave_request(leave).deliver_now
+  cc_list = []
+
+if params[:cc].present?
+  begin
+    cc_list = JSON.parse(params[:cc])
+  rescue
+    cc_list = []
+  end
+end
+
+LeaveMailer.new_leave_request(leave, cc_list).deliver_now
 
   render json: leave, status: :created
   else

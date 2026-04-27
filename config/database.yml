@@ -12,15 +12,25 @@
 default: &default
   adapter: mysql2
   encoding: utf8mb4
-  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: prashanttomar
-  password: prashanttomar
-  host: 127.0.0.1
-  port: 3306
+  pool: 5
 
 development:
-  <<: *default
-  database: railyatri_leave_management_development
+  primary:
+    <<: *default
+    database: railyatri_leave_management_development
+    username: prashanttomar
+    password: prashanttomar
+    host: 127.0.0.1
+    port: 3306
+
+  gds:
+    <<: *default
+    database: railyatri_gds_prod
+    username: railgds
+    password: rail_gds@20
+    host: stagedb.railyatri.in
+    port: 3306
+    migrations_paths: [] 
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

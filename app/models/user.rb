@@ -1,15 +1,10 @@
-class User < ApplicationRecord
-  has_many :leave_requests, dependent: :destroy
-  has_many :leave_balances, dependent: :destroy
+require_dependency "gds_record"
 
-  has_secure_password   
+class User < GdsRecord
+  self.table_name = 'bus_members'
+
+  has_secure_password
 
   validates :name, presence: true
-  validates :email, presence: true, uniqueness: true
-  validates :password, length: { minimum: 6 }, allow_nil: true
-
-    # ================= ROLE METHODS =================
-  def manager?
-    role == "manager"
-  end
+  validates :email, presence: true
 end

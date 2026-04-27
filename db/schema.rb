@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_12_181633) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_22_053356) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -37,23 +37,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_181633) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
-  end
-
-  create_table "holidays", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.date "date"
-    t.string "name"
-    t.boolean "optional"
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "leave_balances", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.integer "balance"
-    t.datetime "created_at", null: false
-    t.string "leave_type"
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["user_id"], name: "index_leave_balances_on_user_id"
   end
 
   create_table "leave_requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -83,6 +66,4 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_181633) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "leave_balances", "users"
-  add_foreign_key "leave_requests", "users"
 end

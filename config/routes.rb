@@ -12,5 +12,7 @@ Rails.application.routes.draw do
     resources :leave_requests
 
     get "manager/leaves", to: "leave_requests#all_leaves"
+
+    get "users", to: "users#index"
   end
 end
