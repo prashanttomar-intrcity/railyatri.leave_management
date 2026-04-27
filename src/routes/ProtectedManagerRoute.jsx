@@ -10,9 +10,8 @@ export default function ProtectedManagerRoute({ children }) {
   }
 
   // ❌ Logged in but NOT manager
-  if (user.role !== "manager") {
-    localStorage.removeItem("user"); // force logout
-
+  // Allow if user is manager of someone OR self manager
+  if (!user || user.id !== user.manager_id) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 

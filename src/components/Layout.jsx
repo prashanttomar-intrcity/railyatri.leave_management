@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
 export default function Layout({ children }) {
+  const location = useLocation();
+  const isManagerView = location.pathname.startsWith("/manager");
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -17,7 +20,12 @@ export default function Layout({ children }) {
   return (
     <>
       <Navbar setIsOpen={setIsOpen} isMobile={isMobile} />
-      <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} isMobile={isMobile} />
+      <Sidebar
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        isMobile={isMobile}
+        isManagerView={isManagerView}
+      />
 
       {isOpen && isMobile && (
         <div onClick={() => setIsOpen(false)} style={styles.overlay} />

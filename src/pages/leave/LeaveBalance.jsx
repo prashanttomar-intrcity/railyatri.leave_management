@@ -216,7 +216,7 @@ function LeaveCard({ data }) {
 
       {/* FOOTER */}
       <div style={styles.cardFooter}>
-        <button style={styles.smallBtn}>View Details</button>
+        <button style={styles.smallBtn}></button>
       </div>
     </div>
   );

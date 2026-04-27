@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { applyLeave } from "../../../api/api";
+import { applyLeave, getUsers } from "../../../api/api";
 import ConfirmModal from "../../../components/ConfirmModal";
 import SuccessModal from "../../../components/SuccessModal";
 
 export default function ApplyLeaveForm() {
+  const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [ccSearch, setCCSearch] = useState("");
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    const data = await getUsers();
+    setUsers(data);
+  };
+
   const [form, setForm] = useState({
     type: "",
     fromDate: "",
@@ -44,14 +57,6 @@ export default function ApplyLeaveForm() {
     "Sick Leave",
   ];
 
-  const users = [
-    "A M Tharun",
-    "A Muhammed",
-    "A Rehmaan",
-    "John Doe",
-    "Jane Smith",
-  ];
-
   const isSickLeave = form.type === "Sick Leave";
 
   useEffect(() => {
@@ -62,6 +67,21 @@ export default function ApplyLeaveForm() {
       setLeaveDays(diff > 0 ? diff : 0);
     }
   }, [form.fromDate, form.toDate]);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (user?.manager_id) {
+      const manager = users.find((u) => u.id === user.manager_id);
+
+      if (manager) {
+        setForm((prev) => ({
+          ...prev,
+          applyingTo: `${manager.id} - ${manager.name}`,
+        }));
+      }
+    }
+  }, [users]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,7 +102,7 @@ export default function ApplyLeaveForm() {
   };
 
   const addCCUser = (user) => {
-    if (!form.cc.includes(user)) {
+    if (!form.cc.find((u) => u.id === user.id)) {
       setForm({ ...form, cc: [...form.cc, user] });
     }
     setShowCCDropdown(false);
@@ -96,7 +116,7 @@ export default function ApplyLeaveForm() {
   };
 
   const selectApplyingTo = (user) => {
-    setForm({ ...form, applyingTo: user });
+    setForm({ ...form, applyingTo: `${user.id} - ${user.name}` });
     setShowApplyDropdown(false);
   };
 
@@ -143,6 +163,7 @@ export default function ApplyLeaveForm() {
     formData.append("applying_to", form.applyingTo);
     formData.append("contact", form.contact);
     formData.append("status", "pending");
+    formData.append("cc", JSON.stringify(form.cc.map((u) => u.email)));
 
     // ✅ ADD FILE (IMPORTANT)
     if (isSickLeave && form.files.length > 0) {
@@ -250,15 +271,26 @@ export default function ApplyLeaveForm() {
 
             {showApplyDropdown && (
               <div style={styles.dropdown}>
-                {users.map((u) => (
-                  <div
-                    key={u}
-                    style={styles.dropdownItem}
-                    onClick={() => selectApplyingTo(u)}
-                  >
-                    {u}
-                  </div>
-                ))}
+                <input
+                  placeholder="Search..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{ padding: "8px", width: "90%" }}
+                />
+
+                {users
+                  .filter((u) =>
+                    u.name.toLowerCase().includes(search.toLowerCase()),
+                  )
+                  .map((u) => (
+                    <div
+                      key={u.id}
+                      style={styles.dropdownItem}
+                      onClick={() => selectApplyingTo(u)}
+                    >
+                      {u.id} - {u.name}
+                    </div>
+                  ))}
               </div>
             )}
           </div>
@@ -278,15 +310,30 @@ export default function ApplyLeaveForm() {
 
             {showCCDropdown && (
               <div style={styles.dropdown}>
-                {users.map((u) => (
-                  <div
-                    key={u}
-                    style={styles.dropdownItem}
-                    onClick={() => addCCUser(u)}
-                  >
-                    {u}
-                  </div>
-                ))}
+                {/* 🔍 SEARCH INPUT */}
+                <input
+                  placeholder="Search..."
+                  value={ccSearch}
+                  onChange={(e) => setCCSearch(e.target.value)}
+                  style={{ padding: "8px", width: "90%" }}
+                />
+
+                {users
+                  .filter((u) =>
+                    `${u.id} ${u.name}`
+                      .toLowerCase()
+                      .includes(ccSearch.toLowerCase()),
+                  )
+                  .map((u) => (
+                    <div
+                      key={u.id}
+                      style={styles.dropdownItem}
+                      onClick={() => addCCUser(u)}
+                    >
+                      {/* ✅ SHOW ID + NAME */}
+                      {u.id} - {u.name}
+                    </div>
+                  ))}
               </div>
             )}
           </div>
@@ -295,7 +342,7 @@ export default function ApplyLeaveForm() {
           <div style={styles.ccContainer}>
             {form.cc.map((c, i) => (
               <div key={i} style={styles.chip}>
-                {c}
+                {c.name}
                 <span onClick={() => removeCC(i)}>×</span>
               </div>
             ))}

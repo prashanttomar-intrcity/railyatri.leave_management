@@ -1,6 +1,5 @@
 import { useState } from "react";
 import ApplyLeaveForm from "./components/ApplyLeaveForm";
-import CompOffGrant from "./components/CompOffGrant";
 import PendingTab from "./components/PendingTab";
 import HistoryTab from "./components/HistoryTab";
 
@@ -19,8 +18,6 @@ export default function LeaveApply() {
     switch (leaveType) {
       case "leave":
         return <ApplyLeaveForm />;
-      case "comp":
-        return <CompOffGrant />;
       default:
         return <ApplyLeaveForm />;
     }
@@ -53,10 +50,7 @@ export default function LeaveApply() {
         {/* LEAVE TYPE SELECTOR */}
         {activeTab === "apply" && (
           <div style={styles.typeTabs}>
-            {[
-              { key: "leave", label: "Leave" },
-              { key: "comp", label: "Comp Off Grant" },
-            ].map((item) => (
+            {[{ key: "leave", label: "Leave" }].map((item) => (
               <div
                 key={item.key}
                 onClick={() => setLeaveType(item.key)}

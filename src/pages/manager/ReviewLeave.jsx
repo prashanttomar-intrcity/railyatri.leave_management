@@ -34,11 +34,7 @@ export default function ReviewLeave() {
   const fetchLeaves = async () => {
     const data = await getAllLeaves();
 
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    const filtered = data.filter((l) => l.user_id !== user.id);
-
-    setLeaves(filtered);
+    setLeaves(data);
   };
   const handleAction = async (id, status) => {
     const updated = await updateLeaveStatus(id, status);
@@ -416,7 +412,7 @@ const styles = {
 
   headerRow: {
     display: "grid",
-    gridTemplateColumns: "150px 130px 140px 120px 200px 140px 200px",
+    gridTemplateColumns: "150px 130px 140px 120px 170px 140px 200px",
     padding: "14px 12px",
     fontWeight: "600",
     borderBottom: "2px solid #e0e0e0",
@@ -484,7 +480,7 @@ const styles = {
 
   row: {
     display: "grid",
-    gridTemplateColumns: "140px 120px 110px 110px 200px 120px 120px",
+    gridTemplateColumns: "140px 110px 110px 150px 140px 120px 120px",
     padding: "14px 12px",
     borderBottom: "1px solid #eee",
     alignItems: "center",

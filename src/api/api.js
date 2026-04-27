@@ -72,6 +72,14 @@ export const updateLeaveStatus = (id, status, comment) =>
   }).then((res) => res.json());
 
 export const getAllLeaves = async () => {
-  const res = await fetch(`${BASE_URL}/manager/leaves`);
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const res = await fetch(`${BASE_URL}/manager/leaves?manager_id=${user.id}`);
+
+  return res.json();
+};
+
+export const getUsers = async () => {
+  const res = await fetch(`${BASE_URL}/users`);
   return res.json();
 };

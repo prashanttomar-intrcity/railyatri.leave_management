@@ -8,13 +8,18 @@ import EventNoteOutlinedIcon from "@mui/icons-material/EventNoteOutlined";
 // SIDEBAR (DARK GREY + LOGO BOX + WHITE ICONS)
 // ======================================================
 
-export default function Sidebar({ isOpen, setIsOpen, isMobile }) {
+export default function Sidebar({
+  isOpen,
+  setIsOpen,
+  isMobile,
+  isManagerView,
+}) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const isManager = user?.role === "manager";
+  const isManager = user?.manager_id === user?.id;
 
   const [openMenu, setOpenMenu] = useState({
     leave: true,
@@ -56,66 +61,63 @@ export default function Sidebar({ isOpen, setIsOpen, isMobile }) {
         <MenuItem
           icon={<HomeOutlinedIcon style={styles.icon} />}
           label="Home"
-          active={isActive("/")}
+          active={isActive("/home")}
           onClick={() => navigate("/home")}
         />
 
-        {/* REVIEW LEAVE ONLY FOR MANAGER */}
-        {isManager && (
-          <MenuItem
-            icon={<EventNoteOutlinedIcon style={styles.icon} />}
-            label="Review Leave"
-            active={isActive("/manager/review")}
-            onClick={() => navigate("/manager/review")}
-          />
-        )}
-
         {/* LEAVE */}
         {/* LEAVE MENU ONLY FOR NORMAL USERS */}
-        {!isManager && (
-          <div>
-            <MenuItem
-              icon={<EventNoteOutlinedIcon style={styles.icon} />}
-              label="Leave"
-              active={isParentActive([
-                "/leave/apply",
-                "/leave/balance",
-                "/leave/calendar",
-                "/leave/holiday",
-              ])}
-              onClick={() => toggleMenu("leave")}
-              arrow={openMenu.leave}
+
+        <div>
+          <MenuItem
+            icon={<EventNoteOutlinedIcon style={styles.icon} />}
+            label="Leave"
+            active={isParentActive([
+              "/leave/apply",
+              "/leave/balance",
+              "/leave/calendar",
+            ])}
+            onClick={() => toggleMenu("leave")}
+            arrow={openMenu.leave}
+          />
+
+          <div
+            style={{
+              ...styles.subMenu,
+              maxHeight: openMenu.leave ? "500px" : "0px",
+            }}
+          >
+            <SubItem
+              label="Apply Leave"
+              active={isActive("/leave/apply")}
+              onClick={() => {
+                navigate("/leave/apply");
+                if (isMobile) setIsOpen(false);
+              }}
             />
 
-            <div
-              style={{
-                ...styles.subMenu,
-                maxHeight: openMenu.leave ? "500px" : "0px",
-              }}
-            >
-              <SubItem
-                label="Apply Leave"
-                active={isActive("/leave/apply")}
-                onClick={() => {
-                  navigate("/leave/apply");
-                  if (isMobile) setIsOpen(false);
-                }}
-              />
+            <SubItem
+              label="Leave Balance"
+              active={isActive("/leave/balance")}
+              onClick={() => navigate("/leave/balance")}
+            />
 
-              <SubItem
-                label="Leave Details"
-                active={isActive("/leave/balance")}
-                onClick={() => navigate("/leave/balance")}
-              />
-
-              <SubItem
-                label="Leave Calendar"
-                active={isActive("/leave/calendar")}
-                onClick={() => navigate("/leave/calendar")}
-              />
-            </div>
+            <SubItem
+              label="Leave Calendar"
+              active={isActive("/leave/calendar")}
+              onClick={() => navigate("/leave/calendar")}
+            />
           </div>
-        )}
+          {/* REVIEW LEAVE ONLY FOR MANAGER */}
+          {isManager && (
+            <MenuItem
+              icon={<EventNoteOutlinedIcon style={styles.icon} />}
+              label="Review Leave"
+              active={isActive("/manager/review")}
+              onClick={() => navigate("/manager/review")}
+            />
+          )}
+        </div>
       </div>
 
       {/* FOOTER */}

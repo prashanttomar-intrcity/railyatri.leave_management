@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { login } from "../../api/api";
 
@@ -12,6 +12,13 @@ export default function Login() {
   });
 
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    // If user came from protected page (email link), store it
+    if (location.state?.from) {
+      localStorage.setItem("redirectAfterLogin", location.state.from);
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,8 +35,14 @@ export default function Login() {
 
       localStorage.setItem("user", JSON.stringify(res.user));
 
-      const from = location.state?.from || "/home";
-      navigate(from);
+      const redirectPath =
+        location.state?.from ||
+        localStorage.getItem("redirectAfterLogin") ||
+        "/home";
+
+      localStorage.removeItem("redirectAfterLogin");
+
+      navigate(redirectPath, { replace: true });
     } catch (err) {
       alert("Login failed");
     }
