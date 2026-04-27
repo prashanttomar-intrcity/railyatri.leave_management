@@ -17,10 +17,15 @@ def all_leaves
 
   # Step 2: get their leaves
   leaves = LeaveRequest.where(user_id: employees)
-                       .includes(:user)
-                       .order(created_at: :desc)
+                     .order(created_at: :desc)
 
-  render json: leaves.as_json(include: { user: { only: [:id, :name, :email] } })
+  users = User.where(id: employees).pluck(:id, :name).to_h
+
+  leaves = leaves.map do |l|
+    l.as_json.merge(user_name: users[l.user_id])
+  end
+
+render json: leaves
 end
 
   def create
@@ -38,6 +43,7 @@ end
     applying_to: data[:applying_to],
     contact: data[:contact]
   )
+
 if leave.save
 
   if params[:medical_file].present?
